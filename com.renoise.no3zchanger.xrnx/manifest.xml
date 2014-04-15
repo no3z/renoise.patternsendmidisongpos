@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RenoiseScriptingTool>
+  <ApiVersion>3</ApiVersion>
+  <Id>com.renoise.no3zchanger</Id>
+  <Version>0.9</Version>
+  <Name>Pattern changer send midi clock</Name>
+  <Author>no3z</Author>
+  <Description>Sends midi song pos change message each time the pattern has change.</Description>
+  <Category>Tools</Category>
+  <Homepage>http://www.renoise.com</Homepage>
+</RenoiseScriptingTool>
