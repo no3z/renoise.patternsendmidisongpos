@@ -16,7 +16,7 @@ function idle_handler()
  local measure = (((t.sequence-1) * 4) + (t.line/16))+1
  if prev_pos ~= measure then  
   midi_device:send {0xF2, measure}      
-  prev_pos = t.sequence
+  prev_pos = measure
  end
 end
 
