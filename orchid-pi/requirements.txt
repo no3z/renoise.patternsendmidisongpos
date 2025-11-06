@@ -1,0 +1,11 @@
+# Orchid-Pi Requirements
+
+# MIDI
+python-rtmidi>=1.4.9
+mido>=1.2.10
+
+# GUI
+kivy>=2.1.0
+
+# Optional: for better performance on RPi
+# Cython>=0.29

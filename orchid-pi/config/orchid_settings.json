@@ -1,0 +1,50 @@
+{
+  "midi": {
+    "input_port": 0,
+    "output_port": 0,
+    "chord_channel": 1,
+    "bass_channel": 2,
+    "performance_channel": 3
+  },
+  "chord_engine": {
+    "default_chord_type": "maj7",
+    "default_octave": 4,
+    "voice_leading_enabled": true,
+    "bass_enabled": true,
+    "bass_octaves_down": 1
+  },
+  "performance_modes": {
+    "strum": {
+      "delay_ms": 15,
+      "direction": "up"
+    },
+    "arpeggiator": {
+      "pattern": "up",
+      "rate": "1/8",
+      "octaves": 1,
+      "gate": 0.8,
+      "bpm": 120
+    },
+    "slop": {
+      "timing_variation_ms": 10,
+      "velocity_variation_pct": 10,
+      "pitch_detune_cents": 0
+    },
+    "pattern": {
+      "bpm": 120,
+      "default_pattern": "basic"
+    },
+    "harp": {
+      "sweep_time_ms": 100,
+      "direction": "up",
+      "velocity_decay": true,
+      "note_length_ms": 500
+    }
+  },
+  "gui": {
+    "fullscreen": false,
+    "window_width": 800,
+    "window_height": 480,
+    "theme": "dark"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "presets": [
+    {
+      "name": "Jazz Chords",
+      "chord_type": "maj7",
+      "octave": 4,
+      "performance_mode": "slop",
+      "bass_enabled": true,
+      "voice_leading": true
+    },
+    {
+      "name": "EDM Stabs",
+      "chord_type": "min7",
+      "octave": 5,
+      "performance_mode": "strum",
+      "bass_enabled": true,
+      "voice_leading": false
+    },
+    {
+      "name": "Ambient Arps",
+      "chord_type": "maj9",
+      "octave": 4,
+      "performance_mode": "arp",
+      "bass_enabled": false,
+      "voice_leading": true
+    },
+    {
+      "name": "Harp Gliss",
+      "chord_type": "maj7",
+      "octave": 3,
+      "performance_mode": "harp",
+      "bass_enabled": false,
+      "voice_leading": true
+    },
+    {
+      "name": "Funk Pattern",
+      "chord_type": "dom7",
+      "octave": 4,
+      "performance_mode": "pattern",
+      "bass_enabled": true,
+      "voice_leading": true
+    }
+  ]
+}

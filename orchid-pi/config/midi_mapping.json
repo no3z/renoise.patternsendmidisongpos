@@ -1,0 +1,52 @@
+{
+  "channels": {
+    "chord_channel": 1,
+    "bass_channel": 2,
+    "performance_channel": 3
+  },
+  "control_change": {
+    "1": {
+      "name": "Modulation Wheel",
+      "function": "voice_leading_strength"
+    },
+    "7": {
+      "name": "Volume",
+      "function": "master_velocity"
+    },
+    "10": {
+      "name": "Pan",
+      "function": "voicing_rotation"
+    },
+    "64": {
+      "name": "Sustain Pedal",
+      "function": "sustain"
+    },
+    "71": {
+      "name": "Resonance",
+      "function": "strum_delay"
+    },
+    "74": {
+      "name": "Brightness",
+      "function": "arp_rate"
+    }
+  },
+  "program_change": {
+    "enabled": true,
+    "mapping": {
+      "0": "major",
+      "1": "minor",
+      "2": "maj7",
+      "3": "min7",
+      "4": "dom7",
+      "5": "dim7",
+      "6": "aug",
+      "7": "sus4"
+    }
+  },
+  "renoise_sync": {
+    "enabled": true,
+    "send_song_position": true,
+    "send_midi_clock": false,
+    "pattern_length": 64
+  }
+}
