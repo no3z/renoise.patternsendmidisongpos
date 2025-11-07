@@ -1,240 +1,122 @@
 """
-Main GUI Window for Orchid-Pi
-Kivy-based touchscreen interface
+Main GUI Window for Orchid-Pi (Redesigned)
+Full-screen Kivy interface optimized for chord progressions
 """
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.slider import Slider
-from kivy.properties import StringProperty, NumericProperty, BooleanProperty
+from kivy.uix.spinner import Spinner
+from kivy.uix.scrollview import ScrollView
+from kivy.properties import StringProperty, NumericProperty, ListProperty
 from kivy.clock import Clock
-from kivy.graphics import Color, Rectangle, Line
 from kivy.core.window import Window
 
 import sys
 import os
-# Add parent directories to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core import ChordEngine, CHORD_FORMULAS
+from core import (ChordEngine, CHORD_FORMULAS, get_all_genres,
+                  get_progressions_for_genre, ProgressionPlayer)
 from midi import MIDIProcessor, MIDIRouter
 from performance import StrumMode, ArpeggiatorMode, SlopMode, PatternMode, HarpMode
 
 
-class ChordDisplay(BoxLayout):
-    """Widget to display current chord info"""
+class ChordButton(Button):
+    """Large, visual button for a chord"""
+    def __init__(self, chord_name="", chord_notes=None, **kwargs):
+        super().__init__(**kwargs)
+        self.chord_name = chord_name
+        self.chord_notes = chord_notes or []
+        self.text = chord_name
+        self.font_size = '28sp'
+        self.bold = True
+        self.size_hint_y = None
+        self.height = 120
+        self.background_color = (0.2, 0.4, 0.7, 1)
 
-    chord_name = StringProperty("---")
-    voicing_info = StringProperty("Root Position")
-    root_note = StringProperty("---")
-    bass_note = StringProperty("---")
+    def set_active(self, active):
+        """Highlight when active"""
+        if active:
+            self.background_color = (0.3, 0.7, 0.3, 1)
+        else:
+            self.background_color = (0.2, 0.4, 0.7, 1)
 
-    def __init__(self, **kwargs):
+
+class ProgressionView(BoxLayout):
+    """Displays current progression with clickable chord buttons"""
+
+    def __init__(self, on_chord_clicked=None, **kwargs):
         super().__init__(**kwargs)
         self.orientation = 'vertical'
-        self.size_hint_y = 0.15
         self.padding = 10
-
-        # Chord name label (large)
-        self.chord_label = Label(
-            text=self.chord_name,
-            font_size='40sp',
-            bold=True,
-            size_hint_y=0.6
-        )
-        self.add_widget(self.chord_label)
-
-        # Info grid
-        info_grid = GridLayout(cols=3, size_hint_y=0.4)
-        info_grid.add_widget(Label(text='Voicing:', size_hint_x=0.3))
-        self.voicing_label = Label(text=self.voicing_info)
-        info_grid.add_widget(self.voicing_label)
-        info_grid.add_widget(Label(text='', size_hint_x=0.3))
-
-        self.add_widget(info_grid)
-
-    def update_display(self, chord_info):
-        """Update display with chord info dict"""
-        self.chord_name = chord_info.get('chord_name', '---')
-        self.chord_label.text = self.chord_name
-
-        # Voicing info
-        inv = chord_info.get('inversion', 0)
-        inv_names = ['Root', '1st Inv', '2nd Inv', '3rd Inv']
-        self.voicing_info = inv_names[min(inv, 3)]
-        self.voicing_label.text = self.voicing_info
-
-
-class VirtualKeyboard(GridLayout):
-    """12-key virtual keyboard"""
-
-    def __init__(self, on_note_pressed=None, **kwargs):
-        super().__init__(**kwargs)
-        self.cols = 12
-        self.size_hint_y = 0.2
-        self.spacing = 2
-        self.padding = 10
-
-        self.on_note_pressed = on_note_pressed
-        self.base_octave = 4
-
-        # Note names for 12 keys
-        self.note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-
-        # Create buttons
-        self.key_buttons = []
-        for i, note_name in enumerate(self.note_names):
-            btn = Button(
-                text=note_name,
-                font_size='20sp',
-                bold=True
-            )
-
-            # Color white/black keys differently
-            is_black_key = '#' in note_name
-            if is_black_key:
-                btn.background_color = (0.2, 0.2, 0.2, 1)
-            else:
-                btn.background_color = (0.9, 0.9, 0.9, 1)
-
-            btn.bind(on_press=lambda x, idx=i: self._key_pressed(idx))
-            self.add_widget(btn)
-            self.key_buttons.append(btn)
-
-    def _key_pressed(self, note_index):
-        """Handle key press"""
-        midi_note = (self.base_octave + 1) * 12 + note_index
-
-        if self.on_note_pressed:
-            self.on_note_pressed(midi_note, 100)
-
-    def set_octave(self, octave):
-        """Set base octave (0-8)"""
-        self.base_octave = max(0, min(8, octave))
-
-
-class PerformanceModeSelector(GridLayout):
-    """Selector for performance modes"""
-
-    def __init__(self, on_mode_changed=None, **kwargs):
-        super().__init__(**kwargs)
-        self.cols = 5
-        self.size_hint_y = 0.1
-        self.spacing = 5
-        self.padding = 10
-
-        self.on_mode_changed = on_mode_changed
-        self.current_mode = 'direct'
-
-        # Mode buttons
-        self.mode_buttons = {}
-        modes = ['Direct', 'Strum', 'Arp', 'Slop', 'Pattern', 'Harp']
-
-        for mode in modes:
-            btn = ToggleButton(
-                text=mode,
-                group='performance_mode',
-                state='normal',
-                font_size='16sp'
-            )
-            btn.bind(on_press=lambda x, m=mode.lower(): self._mode_selected(m))
-            self.add_widget(btn)
-            self.mode_buttons[mode.lower()] = btn
-
-        # Set Direct as default
-        self.mode_buttons['direct'].state = 'down'
-
-    def _mode_selected(self, mode):
-        """Handle mode selection"""
-        self.current_mode = mode
-        if self.on_mode_changed:
-            self.on_mode_changed(mode)
-
-
-class ControlPanel(BoxLayout):
-    """Control panel with various settings"""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.orientation = 'horizontal'
-        self.size_hint_y = 0.15
         self.spacing = 10
-        self.padding = 10
 
-        # Octave control
-        octave_box = BoxLayout(orientation='vertical')
-        octave_box.add_widget(Label(text='Octave', size_hint_y=0.3))
-        self.octave_label = Label(text='4', size_hint_y=0.4, font_size='24sp')
-        octave_box.add_widget(self.octave_label)
+        self.on_chord_clicked = on_chord_clicked
 
-        octave_btns = BoxLayout(size_hint_y=0.3)
-        btn_down = Button(text='▼')
-        btn_up = Button(text='▲')
-        btn_down.bind(on_press=lambda x: self.change_octave(-1))
-        btn_up.bind(on_press=lambda x: self.change_octave(1))
-        octave_btns.add_widget(btn_down)
-        octave_btns.add_widget(btn_up)
-        octave_box.add_widget(octave_btns)
+        # Title
+        self.title_label = Label(
+            text='Select a Progression',
+            font_size='24sp',
+            bold=True,
+            size_hint_y=None,
+            height=40
+        )
+        self.add_widget(self.title_label)
 
-        self.add_widget(octave_box)
+        # Scroll view for chords
+        scroll = ScrollView(size_hint=(1, 1))
+        self.chord_grid = GridLayout(cols=1, spacing=10, size_hint_y=None)
+        self.chord_grid.bind(minimum_height=self.chord_grid.setter('height'))
+        scroll.add_widget(self.chord_grid)
+        self.add_widget(scroll)
 
-        # Chord type selector
-        chord_box = BoxLayout(orientation='vertical')
-        chord_box.add_widget(Label(text='Chord Type', size_hint_y=0.3))
-        self.chord_type_label = Label(text='maj7', size_hint_y=0.4, font_size='20sp')
-        chord_box.add_widget(self.chord_type_label)
+        self.chord_buttons = []
+        self.current_chord_index = -1
 
-        chord_btns = BoxLayout(size_hint_y=0.3)
-        btn_prev = Button(text='◀')
-        btn_next = Button(text='▶')
-        btn_prev.bind(on_press=lambda x: self.change_chord_type(-1))
-        btn_next.bind(on_press=lambda x: self.change_chord_type(1))
-        chord_btns.add_widget(btn_prev)
-        chord_btns.add_widget(btn_next)
-        chord_box.add_widget(chord_btns)
+    def load_progression(self, progression_name, chords):
+        """Load progression into view"""
+        # Clear existing
+        self.chord_grid.clear_widgets()
+        self.chord_buttons = []
 
-        self.add_widget(chord_box)
+        # Update title
+        self.title_label.text = progression_name
 
-        # Bass toggle
-        bass_box = BoxLayout(orientation='vertical')
-        bass_box.add_widget(Label(text='Bass', size_hint_y=0.5))
-        self.bass_toggle = ToggleButton(text='ON', state='down', size_hint_y=0.5)
-        self.bass_toggle.bind(on_press=self.toggle_bass)
-        bass_box.add_widget(self.bass_toggle)
-        self.add_widget(bass_box)
+        # Create chord buttons
+        for i, (notes, name) in enumerate(chords):
+            btn = ChordButton(chord_name=name, chord_notes=notes)
+            btn.bind(on_press=lambda x, idx=i: self._chord_clicked(idx))
+            self.chord_grid.add_widget(btn)
+            self.chord_buttons.append(btn)
 
-        # Settings
-        self.octave = 4
-        self.chord_types = sorted(CHORD_FORMULAS.keys())
-        self.chord_type_index = self.chord_types.index('maj7')
-        self.bass_enabled = True
+    def _chord_clicked(self, index):
+        """Handle chord button click"""
+        for i, btn in enumerate(self.chord_buttons):
+            btn.set_active(i == index)
 
-    def change_octave(self, delta):
-        """Change octave up/down"""
-        self.octave = max(0, min(8, self.octave + delta))
-        self.octave_label.text = str(self.octave)
+        self.current_chord_index = index
 
-    def change_chord_type(self, delta):
-        """Change chord type"""
-        self.chord_type_index = (self.chord_type_index + delta) % len(self.chord_types)
-        self.chord_type_label.text = self.chord_types[self.chord_type_index]
+        if self.on_chord_clicked:
+            self.on_chord_clicked(index)
 
-    def toggle_bass(self, instance):
-        """Toggle bass on/off"""
-        self.bass_enabled = instance.state == 'down'
-        instance.text = 'ON' if self.bass_enabled else 'OFF'
+    def highlight_chord(self, index):
+        """Highlight chord at index"""
+        for i, btn in enumerate(self.chord_buttons):
+            btn.set_active(i == index)
+        self.current_chord_index = index
 
 
 class OrchidPiApp(App):
-    """Main Orchid-Pi application"""
+    """Main Orchid-Pi Application - Redesigned"""
 
     def build(self):
-        # Set window title
-        self.title = 'Orchid-Pi MIDI Brain'
+        # Set fullscreen
+        Window.fullscreen = 'auto'
+        self.title = 'Orchid-Pi - Chord Progression Player'
 
         # Initialize MIDI
         self.midi_processor = MIDIProcessor()
@@ -243,132 +125,250 @@ class OrchidPiApp(App):
         # Initialize chord engine
         self.chord_engine = ChordEngine(default_chord_type='maj7')
 
+        # Initialize progression player
+        self.progression_player = ProgressionPlayer(key_root=60, scale='major')
+
         # Initialize performance modes
         self.modes = {
-            'direct': None,  # Direct mode = no performance processing
+            'direct': None,
             'strum': StrumMode(self.midi_router),
             'arp': ArpeggiatorMode(self.midi_router),
             'slop': SlopMode(self.midi_router),
             'pattern': PatternMode(self.midi_router),
             'harp': HarpMode(self.midi_router)
         }
-
         self.current_mode = 'direct'
 
-        # Setup MIDI I/O
+        # Setup MIDI
         self._setup_midi()
 
         # Build UI
-        root = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        root = BoxLayout(orientation='horizontal', padding=5, spacing=5)
 
-        # Title bar
-        title = Label(
-            text='ORCHID-PI MIDI BRAIN',
-            size_hint_y=0.08,
-            font_size='28sp',
-            bold=True
+        # LEFT PANEL - Progression view (70%)
+        left_panel = BoxLayout(orientation='vertical', size_hint_x=0.7, spacing=10)
+
+        # Key selector
+        key_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=60, spacing=10)
+        key_box.add_widget(Label(text='Key:', size_hint_x=0.2))
+        
+        notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.3)
+        self.note_spinner.bind(text=lambda s, t: self.on_key_changed())
+        key_box.add_widget(self.note_spinner)
+
+        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.2)
+        self.octave_spinner.bind(text=lambda s, t: self.on_key_changed())
+        key_box.add_widget(self.octave_spinner)
+
+        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.3)
+        self.scale_spinner.bind(text=lambda s, t: self.on_key_changed())
+        key_box.add_widget(self.scale_spinner)
+        
+        left_panel.add_widget(key_box)
+
+        # Progression selector
+        prog_box = BoxLayout(orientation='vertical', size_hint_y=None, height=130, spacing=10)
+        
+        genre_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
+        genre_box.add_widget(Label(text='Genre:', size_hint_x=0.3))
+        
+        genres = get_all_genres()
+        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.7)
+        self.genre_spinner.bind(text=self._on_genre_changed)
+        genre_box.add_widget(self.genre_spinner)
+        prog_box.add_widget(genre_box)
+        
+        prog_select_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
+        prog_select_box.add_widget(Label(text='Progression:', size_hint_x=0.3))
+        
+        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.7)
+        self.progression_spinner.bind(text=self._on_progression_changed)
+        prog_select_box.add_widget(self.progression_spinner)
+        prog_box.add_widget(prog_select_box)
+        
+        left_panel.add_widget(prog_box)
+
+        # Current chord display
+        self.current_chord_label = Label(
+            text='---',
+            font_size='60sp',
+            bold=True,
+            size_hint_y=None,
+            height=100,
+            color=(0.3, 1.0, 0.3, 1)
         )
-        root.add_widget(title)
+        left_panel.add_widget(self.current_chord_label)
 
-        # Chord display
-        self.chord_display = ChordDisplay()
-        root.add_widget(self.chord_display)
+        # Progression view
+        self.progression_view = ProgressionView(on_chord_clicked=self.on_chord_clicked)
+        left_panel.add_widget(self.progression_view)
 
-        # Virtual keyboard
-        self.keyboard = VirtualKeyboard(on_note_pressed=self.on_note_pressed)
-        root.add_widget(self.keyboard)
+        # Navigation buttons
+        nav_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=80, spacing=10)
+        btn_prev = Button(text='◀ PREV', font_size='24sp', bold=True)
+        btn_prev.bind(on_press=lambda x: self.prev_chord())
+        btn_next = Button(text='NEXT ▶', font_size='24sp', bold=True)
+        btn_next.bind(on_press=lambda x: self.next_chord())
+        nav_box.add_widget(btn_prev)
+        nav_box.add_widget(btn_next)
+        left_panel.add_widget(nav_box)
 
-        # Control panel
-        self.control_panel = ControlPanel()
-        root.add_widget(self.control_panel)
+        root.add_widget(left_panel)
+
+        # RIGHT PANEL
+        right_panel = BoxLayout(orientation='vertical', size_hint_x=0.3, spacing=10)
 
         # Performance mode selector
-        self.mode_selector = PerformanceModeSelector(on_mode_changed=self.on_mode_changed)
-        root.add_widget(self.mode_selector)
+        perf_box = BoxLayout(orientation='vertical', size_hint_y=None, height=250, spacing=5)
+        perf_box.add_widget(Label(text='Performance Mode', size_hint_y=0.2, bold=True))
 
-        # Status bar
-        self.status_label = Label(
-            text='Ready | MIDI: Not connected',
-            size_hint_y=0.05,
-            font_size='14sp'
-        )
-        root.add_widget(self.status_label)
+        modes = ['Direct', 'Strum', 'Arp', 'Slop', 'Pattern', 'Harp']
+        self.mode_buttons = {}
 
-        # Update display periodically
-        Clock.schedule_interval(self.update_display, 0.1)
+        for mode in modes:
+            btn = ToggleButton(text=mode, group='perf_mode', size_hint_y=None, height=30)
+            btn.bind(on_press=lambda x, m=mode.lower(): self.on_mode_changed(m))
+            perf_box.add_widget(btn)
+            self.mode_buttons[mode.lower()] = btn
+
+        self.mode_buttons['direct'].state = 'down'
+        right_panel.add_widget(perf_box)
+
+        # Bass toggle
+        bass_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
+        bass_box.add_widget(Label(text='Bass:', size_hint_x=0.4))
+        self.bass_toggle = ToggleButton(text='ON', state='down', size_hint_x=0.6)
+        self.bass_toggle.bind(on_press=self.toggle_bass)
+        bass_box.add_widget(self.bass_toggle)
+        right_panel.add_widget(bass_box)
+
+        # Status
+        self.status_label = Label(text='Ready', size_hint_y=None, height=100, font_size='14sp')
+        right_panel.add_widget(self.status_label)
+
+        root.add_widget(right_panel)
+
+        # Load default progression
+        Clock.schedule_once(lambda dt: self._load_default(), 0.5)
 
         return root
 
     def _setup_midi(self):
         """Setup MIDI I/O"""
-        # Try to open MIDI output
         outputs = self.midi_processor.get_available_output_ports()
         if outputs:
             self.midi_processor.open_output_port(0)
             self.status_label.text = f'MIDI Out: {self.midi_processor.output_port}'
         else:
             self.midi_processor.create_virtual_output("Orchid-Pi Out")
-            self.status_label.text = 'MIDI Out: Orchid-Pi Out (Virtual)'
+            self.status_label.text = 'MIDI Out: Virtual'
 
-        # Try to open MIDI input
-        inputs = self.midi_processor.get_available_input_ports()
-        if inputs:
-            self.midi_processor.open_input_port(0)
-            self.midi_processor.set_note_on_callback(self.on_midi_note)
-            self.status_label.text += f' | MIDI In: {self.midi_processor.input_port}'
+    def _load_default(self):
+        """Load default progression"""
+        self._on_genre_changed(self.genre_spinner, self.genre_spinner.text)
+        
+    def _on_genre_changed(self, spinner, genre):
+        """Handle genre change"""
+        progs = get_progressions_for_genre(genre)
+        prog_names = [progs[key]['name'] for key in progs.keys()]
+        self.progression_spinner.values = prog_names
+        if prog_names:
+            self.progression_spinner.text = prog_names[0]
 
-    def on_note_pressed(self, midi_note, velocity):
-        """Handle note press (from virtual keyboard or MIDI input)"""
-        # Update chord engine settings
-        self.chord_engine.set_octave(self.control_panel.octave)
-        self.chord_engine.set_chord_type(self.control_panel.chord_types[self.control_panel.chord_type_index])
-        self.chord_engine.enable_bass(self.control_panel.bass_enabled)
+    def _on_progression_changed(self, spinner, prog_name):
+        """Handle progression change"""
+        if prog_name == 'Select...':
+            return
+            
+        genre = self.genre_spinner.text
+        progs = get_progressions_for_genre(genre)
+        
+        prog_key = None
+        for key, data in progs.items():
+            if data['name'] == prog_name:
+                prog_key = key
+                break
 
-        # Process note through chord engine
-        chord_notes, bass_note = self.chord_engine.process_note(midi_note, velocity)
+        if prog_key:
+            self.progression_player.load_progression(genre, prog_key)
+            chords = self.progression_player.get_full_progression_chords()
+            self.progression_view.load_progression(prog_name, chords)
+            self.progression_player.reset()
+            self.play_current_chord()
 
-        # Apply performance mode or send direct
+    def on_chord_clicked(self, index):
+        """Handle chord click"""
+        self.progression_player.current_chord_index = index
+        self.play_current_chord()
+
+    def play_current_chord(self):
+        """Play current chord"""
+        chord_data = self.progression_player.get_current_chord()
+        if not chord_data:
+            return
+
+        chord_notes, chord_name = chord_data
+        self.current_chord_label.text = chord_name
+        self.progression_view.highlight_chord(self.progression_player.current_chord_index)
+
+        bass_enabled = self.bass_toggle.state == 'down'
+        bass_note = self.chord_engine.theory.get_bass_note(chord_notes) if bass_enabled else None
+
         if self.current_mode == 'direct':
-            # Send directly via router
-            self.midi_router.send_chord_with_bass(chord_notes, bass_note, velocity)
+            self.midi_router.send_chord_with_bass(chord_notes, bass_note, velocity=100)
         else:
-            # Process through performance mode
             mode = self.modes[self.current_mode]
             if mode:
                 mode.enable()
-                mode.process(chord_notes, velocity)
-                # Send bass separately
+                mode.process(chord_notes, velocity=100)
                 if bass_note:
-                    self.midi_router.send_bass(bass_note, velocity)
+                    self.midi_router.send_bass(bass_note, velocity=100)
 
-    def on_midi_note(self, note, velocity, channel):
-        """Handle MIDI input note"""
-        self.on_note_pressed(note, velocity)
+    def next_chord(self):
+        """Next chord"""
+        self.progression_player.next_chord()
+        self.play_current_chord()
+
+    def prev_chord(self):
+        """Previous chord"""
+        self.progression_player.previous_chord()
+        self.play_current_chord()
+
+    def on_key_changed(self):
+        """Handle key change"""
+        note = self.note_spinner.text
+        octave = int(self.octave_spinner.text)
+        scale = self.scale_spinner.text
+        
+        notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+        midi_note = (octave + 1) * 12 + notes.index(note)
+        
+        self.progression_player.set_key(midi_note, scale)
+        chords = self.progression_player.get_full_progression_chords()
+        prog_name = self.progression_player.current_progression_name
+
+        if chords:
+            self.progression_view.load_progression(prog_name, chords)
+            self.play_current_chord()
 
     def on_mode_changed(self, mode):
-        """Handle performance mode change"""
-        # Disable previous mode
+        """Handle mode change"""
         if self.current_mode != 'direct' and self.current_mode in self.modes:
             old_mode = self.modes[self.current_mode]
             if old_mode:
                 old_mode.disable()
-
-        # Set new mode
         self.current_mode = mode
 
-    def update_display(self, dt):
-        """Update chord display"""
-        info = self.chord_engine.get_current_voicing_info()
-        self.chord_display.update_display(info)
+    def toggle_bass(self, instance):
+        """Toggle bass"""
+        instance.text = 'ON' if instance.state == 'down' else 'OFF'
 
     def on_stop(self):
-        """Cleanup on app close"""
-        # Stop all modes
+        """Cleanup"""
         for mode in self.modes.values():
             if mode:
                 mode.disable()
-
-        # Close MIDI
         self.midi_router.stop_all()
         self.midi_processor.close()
 
