@@ -139,9 +139,6 @@ class OrchidPiApp(App):
         }
         self.current_mode = 'direct'
 
-        # Setup MIDI
-        self._setup_midi()
-
         # Build UI
         root = BoxLayout(orientation='horizontal', padding=5, spacing=5)
 
@@ -248,6 +245,9 @@ class OrchidPiApp(App):
         right_panel.add_widget(self.status_label)
 
         root.add_widget(right_panel)
+
+        # Setup MIDI after UI is built
+        self._setup_midi()
 
         # Load default progression
         Clock.schedule_once(lambda dt: self._load_default(), 0.5)
