@@ -141,110 +141,102 @@ class OrchidPiApp(App):
         }
         self.current_mode = 'direct'
 
-        # Build UI
-        root = BoxLayout(orientation='horizontal', padding=5, spacing=5)
+        # Build UI - COMPLETELY REDESIGNED FOR VISIBILITY
+        root = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
-        # LEFT PANEL - Tabbed interface (70%)
-        left_panel = BoxLayout(orientation='vertical', size_hint_x=0.7, spacing=5)
+        # TOP BAR - Always visible, fixed height
+        top_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=70, spacing=10)
 
-        # Key and Progression selector at top (FIXED HEIGHT - MUST BE VISIBLE!)
-        controls_box = BoxLayout(orientation='vertical', size_hint_y=None, height=140, spacing=5, padding=5)
+        with top_bar.canvas.before:
+            Color(0.2, 0.3, 0.4, 1)  # Blue-gray background
+            top_bar.bg = Rectangle(pos=top_bar.pos, size=top_bar.size)
+        top_bar.bind(pos=lambda obj, val: setattr(top_bar.bg, 'pos', val))
+        top_bar.bind(size=lambda obj, val: setattr(top_bar.bg, 'size', val))
 
-        # Add colored background to make it visible
-        with controls_box.canvas.before:
-            Color(0.2, 0.2, 0.3, 1)  # Dark blue background
-            controls_box.bg_rect = Rectangle(pos=controls_box.pos, size=controls_box.size)
-        controls_box.bind(pos=lambda obj, val: setattr(controls_box.bg_rect, 'pos', val))
-        controls_box.bind(size=lambda obj, val: setattr(controls_box.bg_rect, 'size', val))
-
-        # Key selector
-        key_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=60, spacing=10)
-        key_box.add_widget(Label(text='Key:', size_hint_x=0.15, font_size='18sp', bold=True))
-
+        # Key controls
+        top_bar.add_widget(Label(text='KEY:', font_size='20sp', bold=True, size_hint_x=0.1))
         notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.25, font_size='18sp')
+        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.15, font_size='20sp')
         self.note_spinner.bind(text=lambda s, t: self.on_key_changed())
-        key_box.add_widget(self.note_spinner)
+        top_bar.add_widget(self.note_spinner)
 
-        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.15, font_size='18sp')
+        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.1, font_size='20sp')
         self.octave_spinner.bind(text=lambda s, t: self.on_key_changed())
-        key_box.add_widget(self.octave_spinner)
+        top_bar.add_widget(self.octave_spinner)
 
-        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.3, font_size='18sp')
+        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.15, font_size='20sp')
         self.scale_spinner.bind(text=lambda s, t: self.on_key_changed())
-        key_box.add_widget(self.scale_spinner)
-        controls_box.add_widget(key_box)
+        top_bar.add_widget(self.scale_spinner)
 
-        # Progression selector (genre + progression in one row)
-        prog_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=60, spacing=10)
-
+        # Genre and progression
         genres = get_all_genres()
-        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.4, font_size='18sp')
+        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.2, font_size='20sp')
         self.genre_spinner.bind(text=self._on_genre_changed)
-        prog_box.add_widget(self.genre_spinner)
+        top_bar.add_widget(self.genre_spinner)
 
-        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.6, font_size='18sp')
+        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.3, font_size='20sp')
         self.progression_spinner.bind(text=self._on_progression_changed)
-        prog_box.add_widget(self.progression_spinner)
-        controls_box.add_widget(prog_box)
+        top_bar.add_widget(self.progression_spinner)
 
-        left_panel.add_widget(controls_box)
+        root.add_widget(top_bar)
 
-        # Current chord display (fixed height, always visible with background)
-        chord_display_box = BoxLayout(orientation='vertical', size_hint_y=None, height=70, padding=5)
+        # CURRENT CHORD DISPLAY - Fixed height
+        chord_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=60, padding=5)
 
-        # Add colored background
-        with chord_display_box.canvas.before:
-            Color(0.15, 0.15, 0.2, 1)  # Dark background
-            chord_display_box.bg_rect = Rectangle(pos=chord_display_box.pos, size=chord_display_box.size)
-        chord_display_box.bind(pos=lambda obj, val: setattr(chord_display_box.bg_rect, 'pos', val))
-        chord_display_box.bind(size=lambda obj, val: setattr(chord_display_box.bg_rect, 'size', val))
+        with chord_bar.canvas.before:
+            Color(0.1, 0.1, 0.15, 1)
+            chord_bar.bg = Rectangle(pos=chord_bar.pos, size=chord_bar.size)
+        chord_bar.bind(pos=lambda obj, val: setattr(chord_bar.bg, 'pos', val))
+        chord_bar.bind(size=lambda obj, val: setattr(chord_bar.bg, 'size', val))
 
         self.current_chord_label = Label(
-            text='ORCHID-PI',
-            font_size='48sp',
+            text='SELECT A PROGRESSION',
+            font_size='36sp',
             bold=True,
-            color=(0.3, 1.0, 0.3, 1)
+            color=(0.4, 1.0, 0.4, 1)
         )
-        chord_display_box.add_widget(self.current_chord_label)
-        left_panel.add_widget(chord_display_box)
+        chord_bar.add_widget(self.current_chord_label)
+        root.add_widget(chord_bar)
 
-        # Tabbed Panel for 3 views (takes remaining space)
+        # MAIN CONTENT AREA - Split left (progressions/tabs) and right (controls)
+        main_area = BoxLayout(orientation='horizontal', size_hint=(1, 1), spacing=10)
+
+        # LEFT: Tabbed Panel (70%)
         tab_panel = TabbedPanel(
             do_default_tab=False,
-            tab_width=200,
-            tab_height=50,
-            tab_pos='top_mid',
-            size_hint=(1, 1)
+            tab_width=180,
+            tab_height=60,
+            size_hint_x=0.7
         )
-        tab_panel.background_color = (0.15, 0.15, 0.15, 1)
 
-        # Tab 1: Progressions (grid of chord buttons)
-        progressions_tab = TabbedPanelItem(text='♪ Progressions')
+        # Tab 1: Progressions
+        progressions_tab = TabbedPanelItem(text='CHORDS', font_size='18sp')
         self.progression_view = ProgressionView(on_chord_clicked=self.on_chord_clicked)
         progressions_tab.add_widget(self.progression_view)
         tab_panel.add_widget(progressions_tab)
 
-        # Tab 2: Fretboard visualization
-        fretboard_tab = TabbedPanelItem(text='♫ Fretboard')
+        # Tab 2: Fretboard
+        fretboard_tab = TabbedPanelItem(text='FRETBOARD', font_size='18sp')
         self.fretboard_widget = FretboardWidget()
         fretboard_tab.add_widget(self.fretboard_widget)
         tab_panel.add_widget(fretboard_tab)
 
-        # Tab 3: Piano visualization
-        piano_tab = TabbedPanelItem(text='♬ Piano')
+        # Tab 3: Piano
+        piano_tab = TabbedPanelItem(text='PIANO', font_size='18sp')
         self.piano_widget = PianoWidget(start_note=48, num_octaves=3)
         piano_tab.add_widget(self.piano_widget)
         tab_panel.add_widget(piano_tab)
 
-        # Set default tab to Progressions and make it the first tab
-        tab_panel.default_tab_content = self.progression_view
+        main_area.add_widget(tab_panel)
 
-        left_panel.add_widget(tab_panel)
-        root.add_widget(left_panel)
-
-        # RIGHT PANEL
+        # RIGHT PANEL (30%)
         right_panel = BoxLayout(orientation='vertical', size_hint_x=0.3, spacing=10)
+
+        with right_panel.canvas.before:
+            Color(0.18, 0.18, 0.22, 1)
+            right_panel.bg = Rectangle(pos=right_panel.pos, size=right_panel.size)
+        right_panel.bind(pos=lambda obj, val: setattr(right_panel.bg, 'pos', val))
+        right_panel.bind(size=lambda obj, val: setattr(right_panel.bg, 'size', val))
 
         # Performance mode selector
         perf_box = BoxLayout(orientation='vertical', size_hint_y=None, height=250, spacing=5)
@@ -296,7 +288,11 @@ class OrchidPiApp(App):
         self.status_label = Label(text='Ready', size_hint_y=None, height=80, font_size='12sp')
         right_panel.add_widget(self.status_label)
 
-        root.add_widget(right_panel)
+        # Add right panel to main area
+        main_area.add_widget(right_panel)
+
+        # Add main area to root
+        root.add_widget(main_area)
 
         # Setup MIDI after UI is built
         self._setup_midi()
