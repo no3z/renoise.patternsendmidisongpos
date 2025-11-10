@@ -996,6 +996,542 @@ EXTENDED_PROGRESSIONS = {
             "examples": ["Ambient hip-hop"]
         },
     },
+
+    # ===== FLAMENCO =====
+    "flamenco": {
+        "flamenco-phrygian": {
+            "name": "Flamenco Phrygian",
+            "description": "Classic flamenco Phrygian cadence.",
+            "progression": [
+                ("i", "minor"),
+                ("bVII", "major"),
+                ("bVI", "major"),
+                ("V", "major")
+            ],
+            "examples": ["Traditional flamenco, Paco de Lucía"]
+        },
+        "flamenco-solea": {
+            "name": "Soleá",
+            "description": "Soleá flamenco progression.",
+            "progression": [
+                ("i", "minor"),
+                ("bII", "major"),
+                ("i", "minor"),
+                ("V", "major")
+            ],
+            "examples": ["Soleá por Bulerías"]
+        },
+        "flamenco-bulerias": {
+            "name": "Bulerías",
+            "description": "Upbeat bulerías progression.",
+            "progression": [
+                ("i", "minor"),
+                ("bVII", "major"),
+                ("bVI", "major"),
+                ("bII", "major"),
+                ("i", "minor")
+            ],
+            "examples": ["Bulerías de Cádiz"]
+        },
+        "flamenco-rumba": {
+            "name": "Rumba Flamenca",
+            "description": "Rumba flamenco fusion.",
+            "progression": [
+                ("i", "min7"),
+                ("bVII", "dom7"),
+                ("bVI", "maj7"),
+                ("V", "dom7")
+            ],
+            "examples": ["Gipsy Kings style"]
+        },
+        "flamenco-tangos": {
+            "name": "Tangos Flamencos",
+            "description": "Flamenco tangos progression.",
+            "progression": [
+                ("I", "major"),
+                ("bIII", "major"),
+                ("bVII", "major"),
+                ("I", "major")
+            ],
+            "examples": ["Tangos de Málaga"]
+        },
+        "flamenco-alegrias": {
+            "name": "Alegrías",
+            "description": "Joyful alegrías in major.",
+            "progression": [
+                ("I", "major"),
+                ("IV", "major"),
+                ("V", "major"),
+                ("I", "major"),
+                ("vi", "minor")
+            ],
+            "examples": ["Alegrías de Cádiz"]
+        },
+    },
+
+    # ===== INDIAN / RAGA =====
+    "indian": {
+        "raga-bhairav": {
+            "name": "Raga Bhairav",
+            "description": "Morning raga with b2 and b6.",
+            "progression": [
+                ("I", "major"),
+                ("bII", "major"),
+                ("IV", "major"),
+                ("bVI", "major")
+            ],
+            "examples": ["Classical Hindustani morning raga"]
+        },
+        "raga-yaman": {
+            "name": "Raga Yaman",
+            "description": "Evening raga, Lydian mode.",
+            "progression": [
+                ("I", "maj7"),
+                ("II", "maj7"),
+                ("V", "dom7"),
+                ("I", "maj7")
+            ],
+            "examples": ["Classical evening raga"]
+        },
+        "raga-bhupali": {
+            "name": "Raga Bhupali",
+            "description": "Pentatonic major raga.",
+            "progression": [
+                ("I", "major"),
+                ("II", "sus2"),
+                ("V", "sus4"),
+                ("I", "major")
+            ],
+            "examples": ["Pentatonic evening raga"]
+        },
+        "raga-darbari": {
+            "name": "Raga Darbari Kanada",
+            "description": "Serious night raga, minor with b2.",
+            "progression": [
+                ("i", "minor"),
+                ("bII", "major"),
+                ("iv", "minor"),
+                ("i", "minor")
+            ],
+            "examples": ["Night raga, contemplative"]
+        },
+        "carnatic-ragam": {
+            "name": "Carnatic Ragam",
+            "description": "South Indian classical progression.",
+            "progression": [
+                ("I", "major"),
+                ("iii", "minor"),
+                ("V", "major"),
+                ("I", "major")
+            ],
+            "examples": ["Carnatic music, South India"]
+        },
+        "bollywood-romantic": {
+            "name": "Bollywood Romantic",
+            "description": "Modern Bollywood romantic sound.",
+            "progression": [
+                ("I", "maj9"),
+                ("vi", "min7"),
+                ("IV", "maj9"),
+                ("V", "dom7")
+            ],
+            "examples": ["A.R. Rahman style"]
+        },
+    },
+
+    # ===== ARABIC / MIDDLE EASTERN =====
+    "arabic": {
+        "maqam-hijaz": {
+            "name": "Maqam Hijaz",
+            "description": "Hijaz maqam with augmented 2nd.",
+            "progression": [
+                ("i", "minor"),
+                ("bII", "major"),
+                ("V", "major"),
+                ("i", "minor")
+            ],
+            "examples": ["Traditional Arabic, Turkish music"]
+        },
+        "maqam-rast": {
+            "name": "Maqam Rast",
+            "description": "Rast maqam, joyful and bright.",
+            "progression": [
+                ("I", "major"),
+                ("IV", "major"),
+                ("V", "major"),
+                ("I", "major")
+            ],
+            "examples": ["Classical Arabic music"]
+        },
+        "maqam-bayati": {
+            "name": "Maqam Bayati",
+            "description": "Bayati maqam, minor with raised 6th.",
+            "progression": [
+                ("i", "minor"),
+                ("iv", "minor"),
+                ("V", "major"),
+                ("i", "minor")
+            ],
+            "examples": ["Popular in Arabic pop"]
+        },
+        "maqam-saba": {
+            "name": "Maqam Saba",
+            "description": "Saba maqam, melancholic.",
+            "progression": [
+                ("i", "min7b5"),
+                ("bII", "maj7"),
+                ("bVI", "major"),
+                ("i", "min7b5")
+            ],
+            "examples": ["Emotional Arabic music"]
+        },
+        "arabic-pop": {
+            "name": "Arabic Pop",
+            "description": "Modern Arabic pop progression.",
+            "progression": [
+                ("i", "min9"),
+                ("bVI", "maj7"),
+                ("bVII", "dom7"),
+                ("i", "min9")
+            ],
+            "examples": ["Amr Diab, Nancy Ajram"]
+        },
+        "oud-progression": {
+            "name": "Oud Taqsim",
+            "description": "Oud improvisation pattern.",
+            "progression": [
+                ("i", "minor"),
+                ("bVII", "major"),
+                ("bVI", "major"),
+                ("V", "major"),
+                ("i", "minor")
+            ],
+            "examples": ["Traditional oud music"]
+        },
+    },
+
+    # ===== AFRICAN =====
+    "african": {
+        "afrobeat": {
+            "name": "Afrobeat",
+            "description": "Fela Kuti style Afrobeat.",
+            "progression": [
+                ("i", "min7"),
+                ("iv", "min7"),
+                ("i", "min7"),
+                ("bVII", "dom7")
+            ],
+            "examples": ["Fela Kuti, Tony Allen"]
+        },
+        "highlife": {
+            "name": "Highlife",
+            "description": "West African highlife.",
+            "progression": [
+                ("I", "maj7"),
+                ("IV", "maj7"),
+                ("V", "dom7"),
+                ("I", "maj7")
+            ],
+            "examples": ["Ghana, Nigeria highlife"]
+        },
+        "soukous": {
+            "name": "Soukous",
+            "description": "Congolese soukous rumba.",
+            "progression": [
+                ("I", "major"),
+                ("IV", "major"),
+                ("I", "major"),
+                ("V", "major")
+            ],
+            "examples": ["Papa Wemba, Koffi Olomide"]
+        },
+        "mbira": {
+            "name": "Mbira Progression",
+            "description": "Zimbabwean mbira pattern.",
+            "progression": [
+                ("I", "major"),
+                ("bVII", "major"),
+                ("IV", "major"),
+                ("I", "major")
+            ],
+            "examples": ["Shona music, Thomas Mapfumo"]
+        },
+        "afro-jazz": {
+            "name": "Afro-Jazz",
+            "description": "African jazz fusion.",
+            "progression": [
+                ("i", "min9"),
+                ("iv", "min9"),
+                ("bVII", "maj9"),
+                ("i", "min11")
+            ],
+            "examples": ["Hugh Masekela, Abdullah Ibrahim"]
+        },
+    },
+
+    # ===== LATIN EXPANDED =====
+    "latin_extended": {
+        "tango-argentino": {
+            "name": "Tango Argentino",
+            "description": "Traditional Argentine tango.",
+            "progression": [
+                ("i", "minor"),
+                ("V", "dom7"),
+                ("i", "minor"),
+                ("bVI", "major"),
+                ("V", "dom7")
+            ],
+            "examples": ["Astor Piazzolla, Carlos Gardel"]
+        },
+        "tango-nuevo": {
+            "name": "Tango Nuevo",
+            "description": "Modern tango with jazz harmony.",
+            "progression": [
+                ("i", "min9"),
+                ("bVI", "maj7"),
+                ("ii", "min7b5"),
+                ("V", "dom7b9")
+            ],
+            "examples": ["Astor Piazzolla nuevo tango"]
+        },
+        "salsa-son": {
+            "name": "Salsa/Son",
+            "description": "Cuban son progression.",
+            "progression": [
+                ("I", "maj7"),
+                ("vi", "min7"),
+                ("ii", "min7"),
+                ("V", "dom7")
+            ],
+            "examples": ["Celia Cruz, Buena Vista Social Club"]
+        },
+        "mambo": {
+            "name": "Mambo",
+            "description": "Classic mambo progression.",
+            "progression": [
+                ("I", "dom7"),
+                ("IV", "dom7"),
+                ("I", "dom7"),
+                ("V", "dom7")
+            ],
+            "examples": ["Pérez Prado, Tito Puente"]
+        },
+        "cha-cha-cha": {
+            "name": "Cha-Cha-Chá",
+            "description": "Cuban cha-cha-chá rhythm.",
+            "progression": [
+                ("I", "maj7"),
+                ("IV", "maj7"),
+                ("V", "dom7"),
+                ("I", "maj7")
+            ],
+            "examples": ["Traditional cha-cha-chá"]
+        },
+        "bolero": {
+            "name": "Bolero",
+            "description": "Romantic Latin bolero.",
+            "progression": [
+                ("I", "maj9"),
+                ("vi", "min9"),
+                ("ii", "min9"),
+                ("V", "dom9")
+            ],
+            "examples": ["Bésame Mucho, Contigo en la Distancia"]
+        },
+        "cumbia": {
+            "name": "Cumbia",
+            "description": "Colombian cumbia progression.",
+            "progression": [
+                ("I", "major"),
+                ("V", "major"),
+                ("I", "major"),
+                ("IV", "major")
+            ],
+            "examples": ["Colombian cumbia"]
+        },
+        "merengue": {
+            "name": "Merengue",
+            "description": "Dominican merengue.",
+            "progression": [
+                ("I", "maj7"),
+                ("IV", "maj7"),
+                ("I", "maj7"),
+                ("V", "dom7")
+            ],
+            "examples": ["Juan Luis Guerra"]
+        },
+    },
+
+    # ===== GYPSY JAZZ =====
+    "gypsy_jazz": {
+        "django-minor": {
+            "name": "Django Minor Swing",
+            "description": "Gypsy jazz minor progression.",
+            "progression": [
+                ("i", "min6"),
+                ("i", "min6"),
+                ("iv", "min6"),
+                ("iv", "min6"),
+                ("i", "min6"),
+                ("V", "dom7"),
+                ("i", "min6")
+            ],
+            "examples": ["Minor Swing, Dark Eyes"]
+        },
+        "django-major": {
+            "name": "Django Major Swing",
+            "description": "Gypsy jazz major progression.",
+            "progression": [
+                ("I", "6"),
+                ("vi", "min7"),
+                ("ii", "min7"),
+                ("V", "dom7")
+            ],
+            "examples": ["Djangology, Swing 42"]
+        },
+        "manouche-waltz": {
+            "name": "Manouche Waltz",
+            "description": "Gypsy waltz progression.",
+            "progression": [
+                ("I", "maj7"),
+                ("iii", "min7"),
+                ("vi", "min7"),
+                ("ii", "min7"),
+                ("V", "dom7")
+            ],
+            "examples": ["Indifférence, Nuages"]
+        },
+        "gypsy-blues": {
+            "name": "Gypsy Blues",
+            "description": "Gypsy jazz blues.",
+            "progression": [
+                ("i", "min6"),
+                ("iv", "min6"),
+                ("i", "min6"),
+                ("ii", "min7b5"),
+                ("V", "dom7b9")
+            ],
+            "examples": ["Blues Clair"]
+        },
+    },
+
+    # ===== MEDITERRANEAN =====
+    "mediterranean": {
+        "greek-rembetiko": {
+            "name": "Greek Rembetiko",
+            "description": "Greek blues/rembetiko.",
+            "progression": [
+                ("i", "minor"),
+                ("bVII", "major"),
+                ("i", "minor"),
+                ("V", "major")
+            ],
+            "examples": ["Markos Vamvakaris"]
+        },
+        "greek-laiko": {
+            "name": "Greek Laïko",
+            "description": "Modern Greek laïko pop.",
+            "progression": [
+                ("i", "min7"),
+                ("bVI", "maj7"),
+                ("bVII", "dom7"),
+                ("i", "min7")
+            ],
+            "examples": ["Contemporary Greek music"]
+        },
+        "turkish-hicaz": {
+            "name": "Turkish Hicaz",
+            "description": "Turkish hicaz makam.",
+            "progression": [
+                ("i", "minor"),
+                ("bII", "major"),
+                ("i", "minor"),
+                ("bVI", "major")
+            ],
+            "examples": ["Traditional Turkish music"]
+        },
+        "balkan-oro": {
+            "name": "Balkan Oro",
+            "description": "Balkan dance progression.",
+            "progression": [
+                ("i", "minor"),
+                ("bVII", "major"),
+                ("bVI", "major"),
+                ("V", "major")
+            ],
+            "examples": ["Balkan brass bands"]
+        },
+        "sephardic": {
+            "name": "Sephardic",
+            "description": "Sephardic Jewish progression.",
+            "progression": [
+                ("i", "minor"),
+                ("iv", "minor"),
+                ("V", "major"),
+                ("i", "minor")
+            ],
+            "examples": ["Ladino songs"]
+        },
+    },
+
+    # ===== CELTIC =====
+    "celtic": {
+        "irish-jig": {
+            "name": "Irish Jig",
+            "description": "Traditional Irish jig.",
+            "progression": [
+                ("I", "major"),
+                ("IV", "major"),
+                ("I", "major"),
+                ("V", "major")
+            ],
+            "examples": ["Traditional Irish dance"]
+        },
+        "irish-reel": {
+            "name": "Irish Reel",
+            "description": "Irish reel progression.",
+            "progression": [
+                ("I", "major"),
+                ("bVII", "major"),
+                ("I", "major"),
+                ("bVII", "major")
+            ],
+            "examples": ["Irish fiddle tunes"]
+        },
+        "scottish-strathspey": {
+            "name": "Scottish Strathspey",
+            "description": "Scottish dance tune.",
+            "progression": [
+                ("I", "major"),
+                ("IV", "major"),
+                ("V", "major"),
+                ("I", "major")
+            ],
+            "examples": ["Highland bagpipe music"]
+        },
+        "celtic-modal": {
+            "name": "Celtic Modal",
+            "description": "Dorian mode Celtic sound.",
+            "progression": [
+                ("i", "min7"),
+                ("bVII", "maj7"),
+                ("i", "min7"),
+                ("IV", "maj7")
+            ],
+            "examples": ["Enya, Clannad"]
+        },
+        "gaelic-ballad": {
+            "name": "Gaelic Ballad",
+            "description": "Slow Gaelic ballad.",
+            "progression": [
+                ("i", "minor"),
+                ("bVII", "major"),
+                ("bVI", "major"),
+                ("V", "major")
+            ],
+            "examples": ["Irish ballads, laments"]
+        },
+    },
 }
 
 
