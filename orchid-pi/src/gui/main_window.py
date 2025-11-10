@@ -240,8 +240,30 @@ class OrchidPiApp(App):
         bass_box.add_widget(self.bass_toggle)
         right_panel.add_widget(bass_box)
 
+        # MIDI Output selector
+        midi_box = BoxLayout(orientation='vertical', size_hint_y=None, height=140, spacing=5, padding=5)
+
+        # Title with refresh button
+        title_box = BoxLayout(orientation='horizontal', size_hint_y=0.25)
+        title_box.add_widget(Label(text='MIDI Output:', size_hint_x=0.7, bold=True, font_size='16sp'))
+        refresh_btn = Button(text='↻', size_hint_x=0.3, font_size='20sp')
+        refresh_btn.bind(on_press=lambda x: self._refresh_midi_ports())
+        title_box.add_widget(refresh_btn)
+        midi_box.add_widget(title_box)
+
+        # Spinner
+        self.midi_out_spinner = Spinner(
+            text='Loading...',
+            values=[],
+            size_hint_y=0.75,
+            font_size='14sp'
+        )
+        self.midi_out_spinner.bind(text=self._on_midi_out_changed)
+        midi_box.add_widget(self.midi_out_spinner)
+        right_panel.add_widget(midi_box)
+
         # Status
-        self.status_label = Label(text='Ready', size_hint_y=None, height=100, font_size='14sp')
+        self.status_label = Label(text='Ready', size_hint_y=None, height=80, font_size='12sp')
         right_panel.add_widget(self.status_label)
 
         root.add_widget(right_panel)
@@ -257,12 +279,74 @@ class OrchidPiApp(App):
     def _setup_midi(self):
         """Setup MIDI I/O"""
         outputs = self.midi_processor.get_available_output_ports()
+
+        # Populate MIDI output selector
         if outputs:
+            # Include virtual port as option
+            all_ports = outputs + ["Orchid-Pi Out (Virtual)"]
+            self.midi_out_spinner.values = all_ports
+            self.midi_out_spinner.text = outputs[0]
             self.midi_processor.open_output_port(0)
-            self.status_label.text = f'MIDI Out: {self.midi_processor.output_port}'
+            self.status_label.text = f'Connected to: {self.midi_processor.output_port}'
         else:
+            # Create virtual port
             self.midi_processor.create_virtual_output("Orchid-Pi Out")
-            self.status_label.text = 'MIDI Out: Virtual'
+            self.midi_out_spinner.values = ["Orchid-Pi Out (Virtual)"]
+            self.midi_out_spinner.text = "Orchid-Pi Out (Virtual)"
+            self.status_label.text = 'Virtual MIDI port created'
+
+    def _refresh_midi_ports(self):
+        """Refresh the list of available MIDI ports"""
+        # Save current selection
+        current_selection = self.midi_out_spinner.text
+
+        # Get fresh list of ports
+        outputs = self.midi_processor.get_available_output_ports()
+
+        if outputs:
+            # Add virtual port option
+            all_ports = outputs + ["Orchid-Pi Out (Virtual)"]
+            self.midi_out_spinner.values = all_ports
+
+            # Restore selection if still available
+            if current_selection in all_ports:
+                self.midi_out_spinner.text = current_selection
+            else:
+                self.midi_out_spinner.text = outputs[0]
+
+            self.status_label.text = f'Found {len(outputs)} MIDI port(s)'
+        else:
+            self.midi_out_spinner.values = ["Orchid-Pi Out (Virtual)"]
+            self.midi_out_spinner.text = "Orchid-Pi Out (Virtual)"
+            self.status_label.text = 'No MIDI ports found'
+
+    def _on_midi_out_changed(self, spinner, port_name):
+        """Handle MIDI output port change"""
+        if not port_name or port_name == 'Loading...':
+            return
+
+        # Close current port
+        if self.midi_processor.midi_out:
+            try:
+                self.midi_router.stop_all()
+                self.midi_processor.midi_out.close_port()
+            except:
+                pass
+
+        # Open new port
+        outputs = self.midi_processor.get_available_output_ports()
+
+        if port_name == "Orchid-Pi Out (Virtual)":
+            # Create virtual port
+            self.midi_processor.create_virtual_output("Orchid-Pi Out")
+            self.status_label.text = 'Virtual MIDI port created'
+        else:
+            # Find and open the selected port
+            for i, port in enumerate(outputs):
+                if port == port_name:
+                    self.midi_processor.open_output_port(i)
+                    self.status_label.text = f'Connected to: {port_name}'
+                    break
 
     def _load_default(self):
         """Load default progression"""
