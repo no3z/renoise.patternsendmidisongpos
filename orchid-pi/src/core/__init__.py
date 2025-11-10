@@ -8,6 +8,10 @@ from .voice_leading import VoiceLeading
 from .chord_engine import ChordEngine
 from .chord_progressions import PROGRESSIONS, get_all_genres, get_progressions_for_genre
 from .progression_player import ProgressionPlayer
+from .extended_progressions import merge_progressions
+
+# Merge extended progressions with base progressions
+PROGRESSIONS = merge_progressions()
 
 __all__ = [
     'MusicTheory',

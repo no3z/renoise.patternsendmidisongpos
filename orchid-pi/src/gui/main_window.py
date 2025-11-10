@@ -1,6 +1,6 @@
 """
-Main GUI Window for Orchid-Pi (Redesigned)
-Full-screen Kivy interface optimized for chord progressions
+Main GUI Window for Orchid-Pi (Redesigned with Tabs)
+Full-screen Kivy interface with Progressions, Fretboard, and Piano visualizations
 """
 
 from kivy.app import App
@@ -11,6 +11,7 @@ from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.spinner import Spinner
 from kivy.uix.scrollview import ScrollView
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.properties import StringProperty, NumericProperty, ListProperty
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -23,6 +24,7 @@ from core import (ChordEngine, CHORD_FORMULAS, get_all_genres,
                   get_progressions_for_genre, ProgressionPlayer)
 from midi import MIDIProcessor, MIDIRouter
 from performance import StrumMode, ArpeggiatorMode, SlopMode, PatternMode, HarpMode
+from gui.chord_visualizers import FretboardWidget, PianoWidget
 
 
 class ChordButton(Button):
@@ -32,10 +34,10 @@ class ChordButton(Button):
         self.chord_name = chord_name
         self.chord_notes = chord_notes or []
         self.text = chord_name
-        self.font_size = '28sp'
+        self.font_size = '22sp'
         self.bold = True
-        self.size_hint_y = None
-        self.height = 120
+        self.size_hint = (None, None)
+        self.size = (180, 80)  # Fixed size for grid layout
         self.background_color = (0.2, 0.4, 0.7, 1)
 
     def set_active(self, active):
@@ -47,7 +49,7 @@ class ChordButton(Button):
 
 
 class ProgressionView(BoxLayout):
-    """Displays current progression with clickable chord buttons"""
+    """Displays current progression with clickable chord buttons in a grid"""
 
     def __init__(self, on_chord_clicked=None, **kwargs):
         super().__init__(**kwargs)
@@ -67,9 +69,9 @@ class ProgressionView(BoxLayout):
         )
         self.add_widget(self.title_label)
 
-        # Scroll view for chords
+        # Scroll view for chords in grid layout
         scroll = ScrollView(size_hint=(1, 1))
-        self.chord_grid = GridLayout(cols=1, spacing=10, size_hint_y=None)
+        self.chord_grid = GridLayout(cols=3, spacing=10, size_hint_y=None)  # 3 columns for grid
         self.chord_grid.bind(minimum_height=self.chord_grid.setter('height'))
         scroll.add_widget(self.chord_grid)
         self.add_widget(scroll)
@@ -86,7 +88,7 @@ class ProgressionView(BoxLayout):
         # Update title
         self.title_label.text = progression_name
 
-        # Create chord buttons
+        # Create chord buttons in grid
         for i, (notes, name) in enumerate(chords):
             btn = ChordButton(chord_name=name, chord_notes=notes)
             btn.bind(on_press=lambda x, idx=i: self._chord_clicked(idx))
@@ -142,75 +144,80 @@ class OrchidPiApp(App):
         # Build UI
         root = BoxLayout(orientation='horizontal', padding=5, spacing=5)
 
-        # LEFT PANEL - Progression view (70%)
+        # LEFT PANEL - Tabbed interface (70%)
         left_panel = BoxLayout(orientation='vertical', size_hint_x=0.7, spacing=10)
 
+        # Key and Progression selector at top
+        controls_box = BoxLayout(orientation='vertical', size_hint_y=None, height=130, spacing=5)
+
         # Key selector
-        key_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=60, spacing=10)
-        key_box.add_widget(Label(text='Key:', size_hint_x=0.2))
-        
+        key_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50, spacing=10)
+        key_box.add_widget(Label(text='Key:', size_hint_x=0.15))
+
         notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.3)
+        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.25)
         self.note_spinner.bind(text=lambda s, t: self.on_key_changed())
         key_box.add_widget(self.note_spinner)
 
-        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.2)
+        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.15)
         self.octave_spinner.bind(text=lambda s, t: self.on_key_changed())
         key_box.add_widget(self.octave_spinner)
 
-        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.3)
+        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.25)
         self.scale_spinner.bind(text=lambda s, t: self.on_key_changed())
         key_box.add_widget(self.scale_spinner)
-        
-        left_panel.add_widget(key_box)
+        controls_box.add_widget(key_box)
 
-        # Progression selector
-        prog_box = BoxLayout(orientation='vertical', size_hint_y=None, height=130, spacing=10)
-        
-        genre_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
-        genre_box.add_widget(Label(text='Genre:', size_hint_x=0.3))
-        
+        # Progression selector (genre + progression in one row)
+        prog_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50, spacing=10)
+
         genres = get_all_genres()
-        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.7)
+        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.4)
         self.genre_spinner.bind(text=self._on_genre_changed)
-        genre_box.add_widget(self.genre_spinner)
-        prog_box.add_widget(genre_box)
-        
-        prog_select_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
-        prog_select_box.add_widget(Label(text='Progression:', size_hint_x=0.3))
-        
-        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.7)
+        prog_box.add_widget(self.genre_spinner)
+
+        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.6)
         self.progression_spinner.bind(text=self._on_progression_changed)
-        prog_select_box.add_widget(self.progression_spinner)
-        prog_box.add_widget(prog_select_box)
-        
-        left_panel.add_widget(prog_box)
+        prog_box.add_widget(self.progression_spinner)
+        controls_box.add_widget(prog_box)
+
+        left_panel.add_widget(controls_box)
 
         # Current chord display
         self.current_chord_label = Label(
             text='---',
-            font_size='60sp',
+            font_size='48sp',
             bold=True,
             size_hint_y=None,
-            height=100,
+            height=70,
             color=(0.3, 1.0, 0.3, 1)
         )
         left_panel.add_widget(self.current_chord_label)
 
-        # Progression view
+        # Tabbed Panel for 3 views
+        tab_panel = TabbedPanel(do_default_tab=False, tab_width=180)
+        tab_panel.background_color = (0.1, 0.1, 0.1, 1)
+        tab_panel.border = [0, 0, 0, 0]
+
+        # Tab 1: Progressions (grid of chord buttons)
+        progressions_tab = TabbedPanelItem(text='Progressions')
         self.progression_view = ProgressionView(on_chord_clicked=self.on_chord_clicked)
-        left_panel.add_widget(self.progression_view)
+        progressions_tab.add_widget(self.progression_view)
+        tab_panel.add_widget(progressions_tab)
 
-        # Navigation buttons
-        nav_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=80, spacing=10)
-        btn_prev = Button(text='◀ PREV', font_size='24sp', bold=True)
-        btn_prev.bind(on_press=lambda x: self.prev_chord())
-        btn_next = Button(text='NEXT ▶', font_size='24sp', bold=True)
-        btn_next.bind(on_press=lambda x: self.next_chord())
-        nav_box.add_widget(btn_prev)
-        nav_box.add_widget(btn_next)
-        left_panel.add_widget(nav_box)
+        # Tab 2: Fretboard visualization
+        fretboard_tab = TabbedPanelItem(text='Fretboard')
+        self.fretboard_widget = FretboardWidget()
+        fretboard_tab.add_widget(self.fretboard_widget)
+        tab_panel.add_widget(fretboard_tab)
 
+        # Tab 3: Piano visualization
+        piano_tab = TabbedPanelItem(text='Piano')
+        self.piano_widget = PianoWidget(start_note=48, num_octaves=3)
+        piano_tab.add_widget(self.piano_widget)
+        tab_panel.add_widget(piano_tab)
+
+        left_panel.add_widget(tab_panel)
         root.add_widget(left_panel)
 
         # RIGHT PANEL
@@ -387,7 +394,7 @@ class OrchidPiApp(App):
         self.play_current_chord()
 
     def play_current_chord(self):
-        """Play current chord"""
+        """Play current chord and update visualizations"""
         chord_data = self.progression_player.get_current_chord()
         if not chord_data:
             return
@@ -395,6 +402,10 @@ class OrchidPiApp(App):
         chord_notes, chord_name = chord_data
         self.current_chord_label.text = chord_name
         self.progression_view.highlight_chord(self.progression_player.current_chord_index)
+
+        # Update visualizers
+        self.fretboard_widget.update_chord(chord_notes, chord_name)
+        self.piano_widget.update_chord(chord_notes, chord_name)
 
         bass_enabled = self.bass_toggle.state == 'down'
         bass_note = self.chord_engine.theory.get_bass_note(chord_notes) if bass_enabled else None
@@ -408,16 +419,6 @@ class OrchidPiApp(App):
                 mode.process(chord_notes, velocity=100)
                 if bass_note:
                     self.midi_router.send_bass(bass_note, velocity=100)
-
-    def next_chord(self):
-        """Next chord"""
-        self.progression_player.next_chord()
-        self.play_current_chord()
-
-    def prev_chord(self):
-        """Previous chord"""
-        self.progression_player.previous_chord()
-        self.play_current_chord()
 
     def on_key_changed(self):
         """Handle key change"""
