@@ -15,6 +15,7 @@ from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.properties import StringProperty, NumericProperty, ListProperty
 from kivy.clock import Clock
 from kivy.core.window import Window
+from kivy.graphics import Color, Rectangle
 
 import sys
 import os
@@ -146,23 +147,30 @@ class OrchidPiApp(App):
         # LEFT PANEL - Tabbed interface (70%)
         left_panel = BoxLayout(orientation='vertical', size_hint_x=0.7, spacing=5)
 
-        # Key and Progression selector at top (fixed height to ensure visibility)
-        controls_box = BoxLayout(orientation='vertical', size_hint=(1, None), height=135, spacing=5, padding=[5, 10, 5, 5])
+        # Key and Progression selector at top (FIXED HEIGHT - MUST BE VISIBLE!)
+        controls_box = BoxLayout(orientation='vertical', size_hint_y=None, height=140, spacing=5, padding=5)
+
+        # Add colored background to make it visible
+        with controls_box.canvas.before:
+            Color(0.2, 0.2, 0.3, 1)  # Dark blue background
+            controls_box.bg_rect = Rectangle(pos=controls_box.pos, size=controls_box.size)
+        controls_box.bind(pos=lambda obj, val: setattr(controls_box.bg_rect, 'pos', val))
+        controls_box.bind(size=lambda obj, val: setattr(controls_box.bg_rect, 'size', val))
 
         # Key selector
         key_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=60, spacing=10)
-        key_box.add_widget(Label(text='Key:', size_hint_x=0.15, font_size='16sp', bold=True))
+        key_box.add_widget(Label(text='Key:', size_hint_x=0.15, font_size='18sp', bold=True))
 
         notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.25, font_size='16sp')
+        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.25, font_size='18sp')
         self.note_spinner.bind(text=lambda s, t: self.on_key_changed())
         key_box.add_widget(self.note_spinner)
 
-        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.15, font_size='16sp')
+        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.15, font_size='18sp')
         self.octave_spinner.bind(text=lambda s, t: self.on_key_changed())
         key_box.add_widget(self.octave_spinner)
 
-        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.25, font_size='16sp')
+        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.3, font_size='18sp')
         self.scale_spinner.bind(text=lambda s, t: self.on_key_changed())
         key_box.add_widget(self.scale_spinner)
         controls_box.add_widget(key_box)
@@ -171,27 +179,35 @@ class OrchidPiApp(App):
         prog_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=60, spacing=10)
 
         genres = get_all_genres()
-        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.4, font_size='16sp')
+        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.4, font_size='18sp')
         self.genre_spinner.bind(text=self._on_genre_changed)
         prog_box.add_widget(self.genre_spinner)
 
-        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.6, font_size='16sp')
+        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.6, font_size='18sp')
         self.progression_spinner.bind(text=self._on_progression_changed)
         prog_box.add_widget(self.progression_spinner)
         controls_box.add_widget(prog_box)
 
         left_panel.add_widget(controls_box)
 
-        # Current chord display (fixed height, always visible)
+        # Current chord display (fixed height, always visible with background)
+        chord_display_box = BoxLayout(orientation='vertical', size_hint_y=None, height=70, padding=5)
+
+        # Add colored background
+        with chord_display_box.canvas.before:
+            Color(0.15, 0.15, 0.2, 1)  # Dark background
+            chord_display_box.bg_rect = Rectangle(pos=chord_display_box.pos, size=chord_display_box.size)
+        chord_display_box.bind(pos=lambda obj, val: setattr(chord_display_box.bg_rect, 'pos', val))
+        chord_display_box.bind(size=lambda obj, val: setattr(chord_display_box.bg_rect, 'size', val))
+
         self.current_chord_label = Label(
-            text='- - -',
-            font_size='42sp',
+            text='ORCHID-PI',
+            font_size='48sp',
             bold=True,
-            size_hint=(1, None),
-            height=60,
             color=(0.3, 1.0, 0.3, 1)
         )
-        left_panel.add_widget(self.current_chord_label)
+        chord_display_box.add_widget(self.current_chord_label)
+        left_panel.add_widget(chord_display_box)
 
         # Tabbed Panel for 3 views (takes remaining space)
         tab_panel = TabbedPanel(
