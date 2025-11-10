@@ -477,6 +477,524 @@ EXTENDED_PROGRESSIONS = {
             ],
             "examples": ["Advanced jazz harmony"]
         },
+        "bill-evans-waltz": {
+            "name": "Bill Evans Waltz",
+            "description": "Romantic jazz waltz harmonies.",
+            "progression": [
+                ("I", "maj9"),
+                ("IV", "maj9#11"),
+                ("iii", "min9"),
+                ("vi", "min11"),
+                ("ii", "min11"),
+                ("V", "dom13"),
+                ("I", "maj13")
+            ],
+            "examples": ["Waltz for Debby, My Foolish Heart"]
+        },
+        "keith-jarrett-modal": {
+            "name": "Keith Jarrett Modal",
+            "description": "Expansive modal explorations.",
+            "progression": [
+                ("I", "maj9"),
+                ("bVII", "maj9"),
+                ("I", "sus2"),
+                ("bVII", "sus4"),
+                ("I", "maj13#11")
+            ],
+            "examples": ["The Köln Concert style"]
+        },
+        "herbie-maiden-voyage": {
+            "name": "Maiden Voyage",
+            "description": "Herbie Hancock suspended fourths.",
+            "progression": [
+                ("I", "sus4"),
+                ("II", "sus4"),
+                ("iii", "sus4"),
+                ("IV", "sus4")
+            ],
+            "examples": ["Maiden Voyage"]
+        },
+        "chick-corea-spanish": {
+            "name": "Chick Corea Spanish",
+            "description": "Spanish-influenced jazz harmony.",
+            "progression": [
+                ("i", "min9"),
+                ("bVI", "maj7"),
+                ("bVII", "dom9"),
+                ("i", "min11"),
+                ("bII", "maj7#11")
+            ],
+            "examples": ["Spain, Armando's Rhumba"]
+        },
+        "wayne-shorter-pentatonic": {
+            "name": "Wayne Shorter Pentatonic",
+            "description": "Ambiguous pentatonic harmony.",
+            "progression": [
+                ("I", "sus2"),
+                ("bVII", "sus2"),
+                ("bIII", "maj7"),
+                ("bVI", "maj9")
+            ],
+            "examples": ["Footprints, Speak No Evil"]
+        },
+        "brad-mehldau-altered": {
+            "name": "Brad Mehldau Altered",
+            "description": "Contemporary altered harmony.",
+            "progression": [
+                ("I", "maj9#11"),
+                ("bVII", "dom13"),
+                ("bVI", "maj9"),
+                ("ii", "min11"),
+                ("V", "dom7#5")
+            ],
+            "examples": ["Modern jazz standards reharmonization"]
+        },
+        "jazz-pedal-point": {
+            "name": "Pedal Point Harmony",
+            "description": "Static bass with moving harmony.",
+            "progression": [
+                ("I", "maj9"),
+                ("I", "maj9#11"),
+                ("I", "maj13"),
+                ("I", "maj7")
+            ],
+            "examples": ["Naima, So What"]
+        },
+        "jazz-descending-cycle": {
+            "name": "Descending Cycle",
+            "description": "Descending harmonic movement.",
+            "progression": [
+                ("I", "maj9"),
+                ("bVII", "maj7"),
+                ("bVI", "maj9"),
+                ("V", "dom13"),
+                ("IV", "maj9#11"),
+                ("bIII", "maj7")
+            ],
+            "examples": ["Sophisticated harmonic descent"]
+        },
+    },
+
+    # ===== GOSPEL =====
+    "gospel": {
+        "gospel-251": {
+            "name": "Gospel II-V-I",
+            "description": "Classic gospel with passing chords.",
+            "progression": [
+                ("ii", "min9"),
+                ("V", "dom13"),
+                ("I", "maj9"),
+                ("vi", "min7")
+            ],
+            "examples": ["Traditional gospel sound"]
+        },
+        "gospel-chromatic-walkdown": {
+            "name": "Gospel Chromatic Walkdown",
+            "description": "Chromatic bass movement.",
+            "progression": [
+                ("I", "maj9"),
+                ("I", "maj7"),
+                ("bVII", "dom7"),
+                ("vi", "min9"),
+                ("bVI", "maj7"),
+                ("V", "dom13")
+            ],
+            "examples": ["Kirk Franklin style"]
+        },
+        "gospel-extended": {
+            "name": "Extended Gospel",
+            "description": "Rich extended harmonies.",
+            "progression": [
+                ("I", "maj13"),
+                ("IV", "maj9"),
+                ("iii", "min11"),
+                ("vi", "min9"),
+                ("ii", "min11"),
+                ("V", "dom13"),
+                ("I", "maj9")
+            ],
+            "examples": ["Contemporary gospel"]
+        },
+        "gospel-pentecostal": {
+            "name": "Pentecostal Gospel",
+            "description": "Energetic pentecostal progression.",
+            "progression": [
+                ("I", "maj7"),
+                ("IV", "maj9"),
+                ("I", "maj7"),
+                ("V", "dom9"),
+                ("IV", "maj9"),
+                ("I", "maj13")
+            ],
+            "examples": ["Uplifting church music"]
+        },
+        "gospel-turnaround-extended": {
+            "name": "Gospel Turnaround",
+            "description": "Extended gospel turnaround.",
+            "progression": [
+                ("I", "maj9"),
+                ("vi", "min9"),
+                ("IV", "maj9"),
+                ("iii", "min7"),
+                ("ii", "min11"),
+                ("V", "dom13")
+            ],
+            "examples": ["Gospel ending progression"]
+        },
+    },
+
+    # ===== NEO-SOUL =====
+    "neo_soul": {
+        "neo-soul-basic": {
+            "name": "Neo-Soul Basic",
+            "description": "Smooth neo-soul vibe.",
+            "progression": [
+                ("i", "min9"),
+                ("iv", "min11"),
+                ("bVII", "maj9"),
+                ("bIII", "maj7")
+            ],
+            "examples": ["D'Angelo, Erykah Badu"]
+        },
+        "neo-soul-extended": {
+            "name": "Neo-Soul Extended",
+            "description": "Lush extended neo-soul harmonies.",
+            "progression": [
+                ("i", "min11"),
+                ("bVII", "maj9"),
+                ("bVI", "maj13"),
+                ("V", "dom7#9")
+            ],
+            "examples": ["Robert Glasper, BBNG"]
+        },
+        "neo-soul-fusion": {
+            "name": "Neo-Soul Jazz Fusion",
+            "description": "Jazz-influenced neo-soul.",
+            "progression": [
+                ("i", "min9"),
+                ("ii", "min11"),
+                ("bIII", "maj9#11"),
+                ("bVII", "dom13")
+            ],
+            "examples": ["Hiatus Kaiyote, Tom Misch"]
+        },
+        "neo-soul-rnb": {
+            "name": "Neo-Soul R&B",
+            "description": "Modern R&B with jazz chords.",
+            "progression": [
+                ("I", "maj9"),
+                ("iii", "min11"),
+                ("vi", "min9"),
+                ("ii", "min11"),
+                ("V", "dom9")
+            ],
+            "examples": ["H.E.R., Daniel Caesar"]
+        },
+        "neo-soul-modal": {
+            "name": "Modal Neo-Soul",
+            "description": "Modal harmony in neo-soul context.",
+            "progression": [
+                ("i", "min11"),
+                ("i", "min9"),
+                ("bVII", "maj9"),
+                ("bVII", "sus4")
+            ],
+            "examples": ["Floating modal soul"]
+        },
+        "neo-soul-chromatic": {
+            "name": "Chromatic Neo-Soul",
+            "description": "Chromatic passing chords.",
+            "progression": [
+                ("i", "min9"),
+                ("bVII", "maj9"),
+                ("bVI", "maj7"),
+                ("bV", "maj7"),
+                ("iv", "min11")
+            ],
+            "examples": ["Anderson .Paak style"]
+        },
+    },
+
+    # ===== FUSION =====
+    "fusion": {
+        "fusion-mahavishnu": {
+            "name": "Mahavishnu Orchestra",
+            "description": "Complex fusion harmony.",
+            "progression": [
+                ("I", "maj7#5"),
+                ("bVII", "dom7#9"),
+                ("bVI", "maj9"),
+                ("V", "dom7#11")
+            ],
+            "examples": ["Birds of Fire"]
+        },
+        "fusion-weather-report": {
+            "name": "Weather Report",
+            "description": "Atmospheric fusion.",
+            "progression": [
+                ("I", "sus4"),
+                ("bVII", "maj9"),
+                ("bIII", "maj7#11"),
+                ("V", "sus4")
+            ],
+            "examples": ["Birdland, Teen Town"]
+        },
+        "fusion-return-to-forever": {
+            "name": "Return to Forever",
+            "description": "Latin-fusion harmony.",
+            "progression": [
+                ("i", "min9"),
+                ("iv", "min11"),
+                ("bVII", "dom9"),
+                ("bIII", "maj13")
+            ],
+            "examples": ["Romantic Warrior"]
+        },
+        "fusion-miles-electric": {
+            "name": "Miles Electric Period",
+            "description": "Electric Miles Davis sound.",
+            "progression": [
+                ("I", "sus4"),
+                ("bVII", "dom9"),
+                ("I", "sus2"),
+                ("bVII", "sus4")
+            ],
+            "examples": ["In a Silent Way, Bitches Brew"]
+        },
+        "fusion-snarky-puppy": {
+            "name": "Snarky Puppy",
+            "description": "Modern fusion harmonies.",
+            "progression": [
+                ("I", "maj9#11"),
+                ("bVII", "maj9"),
+                ("bVI", "maj7"),
+                ("V", "sus4"),
+                ("V", "dom13")
+            ],
+            "examples": ["Lingus, What About Me?"]
+        },
+        "fusion-quartal": {
+            "name": "Fusion Quartal",
+            "description": "Fourth-based fusion voicings.",
+            "progression": [
+                ("I", "sus4"),
+                ("IV", "sus4"),
+                ("bVII", "sus4"),
+                ("bIII", "sus4")
+            ],
+            "examples": ["Modern jazz fusion"]
+        },
+    },
+
+    # ===== LATIN JAZZ =====
+    "latin_jazz": {
+        "afro-cuban-montuno": {
+            "name": "Afro-Cuban Montuno",
+            "description": "Traditional Afro-Cuban jazz.",
+            "progression": [
+                ("i", "min9"),
+                ("iv", "min9"),
+                ("i", "min9"),
+                ("V", "dom9")
+            ],
+            "examples": ["Manteca, Afro Blue"]
+        },
+        "bossa-jobim": {
+            "name": "Jobim Bossa Nova",
+            "description": "Antonio Carlos Jobim style.",
+            "progression": [
+                ("I", "maj9"),
+                ("ii", "min9"),
+                ("V", "dom7b9"),
+                ("I", "maj13"),
+                ("IV", "maj9")
+            ],
+            "examples": ["Wave, One Note Samba"]
+        },
+        "samba-jazz": {
+            "name": "Samba Jazz",
+            "description": "Brazilian samba with jazz harmony.",
+            "progression": [
+                ("I", "maj9"),
+                ("bVII", "dom9"),
+                ("bVI", "maj7"),
+                ("ii", "min9"),
+                ("V", "dom13")
+            ],
+            "examples": ["Black Orpheus, Mas Que Nada"]
+        },
+        "latin-minor": {
+            "name": "Latin Minor",
+            "description": "Minor key latin jazz.",
+            "progression": [
+                ("i", "min9"),
+                ("bVI", "maj9"),
+                ("bVII", "dom9"),
+                ("i", "min11")
+            ],
+            "examples": ["Oye Como Va, Evil Ways"]
+        },
+        "tumbao-progression": {
+            "name": "Tumbao",
+            "description": "Cuban tumbao pattern.",
+            "progression": [
+                ("I", "maj9"),
+                ("IV", "maj9"),
+                ("I", "maj7"),
+                ("V", "dom9")
+            ],
+            "examples": ["Salsa, Timba"]
+        },
+    },
+
+    # ===== R&B / CONTEMPORARY =====
+    "rnb": {
+        "rnb-90s": {
+            "name": "90s R&B",
+            "description": "Classic 90s R&B sound.",
+            "progression": [
+                ("I", "maj9"),
+                ("iii", "min7"),
+                ("vi", "min9"),
+                ("ii", "min7"),
+                ("V", "dom9")
+            ],
+            "examples": ["Boyz II Men, Jodeci"]
+        },
+        "rnb-contemporary": {
+            "name": "Contemporary R&B",
+            "description": "Modern R&B with jazz chords.",
+            "progression": [
+                ("I", "maj13"),
+                ("vi", "min11"),
+                ("IV", "maj9"),
+                ("iii", "min9"),
+                ("ii", "min11"),
+                ("V", "dom13")
+            ],
+            "examples": ["The Weeknd, SZA"]
+        },
+        "rnb-trap-soul": {
+            "name": "Trap Soul",
+            "description": "Trap-influenced R&B.",
+            "progression": [
+                ("i", "min9"),
+                ("bVI", "maj7"),
+                ("bVII", "maj9"),
+                ("i", "min11")
+            ],
+            "examples": ["Bryson Tiller, 6lack"]
+        },
+        "rnb-ballad": {
+            "name": "R&B Ballad",
+            "description": "Emotional R&B ballad.",
+            "progression": [
+                ("I", "maj9"),
+                ("vi", "min9"),
+                ("IV", "maj9"),
+                ("V", "dom13"),
+                ("I", "maj13")
+            ],
+            "examples": ["Alicia Keys, John Legend"]
+        },
+        "rnb-alternative": {
+            "name": "Alternative R&B",
+            "description": "Experimental alt-R&B harmonies.",
+            "progression": [
+                ("i", "min11"),
+                ("bVII", "maj9#11"),
+                ("bVI", "maj13"),
+                ("V", "dom7#9")
+            ],
+            "examples": ["FKA twigs, Frank Ocean"]
+        },
+    },
+
+    # ===== PROGRESSIVE / EXPERIMENTAL =====
+    "progressive": {
+        "prog-rock-jazz": {
+            "name": "Progressive Rock Jazz",
+            "description": "Complex time signatures and harmony.",
+            "progression": [
+                ("I", "maj9"),
+                ("bVII", "maj7"),
+                ("bVI", "maj9#11"),
+                ("bII", "maj7"),
+                ("V", "dom13")
+            ],
+            "examples": ["Steely Dan, King Crimson"]
+        },
+        "modal-interchange": {
+            "name": "Modal Interchange",
+            "description": "Borrowed chords from parallel modes.",
+            "progression": [
+                ("I", "maj9"),
+                ("bVII", "maj9"),
+                ("IV", "min11"),
+                ("bVI", "maj7"),
+                ("V", "dom9")
+            ],
+            "examples": ["Advanced modal harmony"]
+        },
+        "polytonal": {
+            "name": "Polytonal Harmony",
+            "description": "Multiple key centers.",
+            "progression": [
+                ("I", "maj9"),
+                ("bIII", "maj9"),
+                ("bVI", "maj9"),
+                ("I", "maj13#11")
+            ],
+            "examples": ["Modern classical jazz"]
+        },
+        "upper-structure": {
+            "name": "Upper Structure Triads",
+            "description": "Complex voicings with upper structures.",
+            "progression": [
+                ("ii", "min11"),
+                ("V", "dom13"),
+                ("I", "maj13#11"),
+                ("IV", "maj9#11")
+            ],
+            "examples": ["Advanced jazz piano"]
+        },
+    },
+
+    # ===== LOFI / CHILL =====
+    "lofi": {
+        "lofi-hiphop": {
+            "name": "Lofi Hip-Hop",
+            "description": "Relaxing lofi beats harmony.",
+            "progression": [
+                ("I", "maj9"),
+                ("vi", "min9"),
+                ("IV", "maj9"),
+                ("V", "dom9")
+            ],
+            "examples": ["Nujabes, J Dilla"]
+        },
+        "lofi-jazz": {
+            "name": "Lofi Jazz",
+            "description": "Jazz-influenced lofi.",
+            "progression": [
+                ("ii", "min11"),
+                ("V", "dom9"),
+                ("I", "maj9"),
+                ("vi", "min11")
+            ],
+            "examples": ["Chillhop, study beats"]
+        },
+        "lofi-ambient": {
+            "name": "Ambient Lofi",
+            "description": "Atmospheric lofi progressions.",
+            "progression": [
+                ("I", "maj9"),
+                ("bVII", "maj9"),
+                ("IV", "maj9"),
+                ("I", "maj13")
+            ],
+            "examples": ["Ambient hip-hop"]
+        },
     },
 }
 
