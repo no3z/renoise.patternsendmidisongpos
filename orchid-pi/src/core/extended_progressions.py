@@ -289,6 +289,195 @@ EXTENDED_PROGRESSIONS = {
             "examples": ["Black Sabbath style"]
         },
     },
+
+    # ===== JAZZ - PAT METHENY STYLE =====
+    "jazz": {
+        "metheny-bright": {
+            "name": "Metheny Bright Sound",
+            "description": "Lush major extensions, Pat Metheny signature.",
+            "progression": [
+                ("I", "maj9"),
+                ("II", "maj9"),
+                ("iii", "min11"),
+                ("vi", "min9"),
+                ("ii", "min11"),
+                ("V", "dom9"),
+                ("I", "maj13")
+            ],
+            "examples": ["Phase Dance, James"]
+        },
+        "metheny-modal": {
+            "name": "Modal Jazz (Lydian)",
+            "description": "Floating modal harmony.",
+            "progression": [
+                ("I", "maj7#11"),
+                ("II", "maj7"),
+                ("I", "maj9#11"),
+                ("bVII", "maj9")
+            ],
+            "examples": ["Better Days Ahead"]
+        },
+        "metheny-suspended": {
+            "name": "Suspended Progressions",
+            "description": "Sus chords with rich extensions.",
+            "progression": [
+                ("I", "sus2"),
+                ("IV", "add9"),
+                ("V", "sus4"),
+                ("I", "maj9")
+            ],
+            "examples": ["So May It Secretly Begin"]
+        },
+        "jazz-251-extended": {
+            "name": "II-V-I Extended",
+            "description": "Classic jazz with extensions.",
+            "progression": [
+                ("ii", "min9"),
+                ("V", "dom13"),
+                ("I", "maj9#11"),
+                ("vi", "min11")
+            ],
+            "examples": ["Standard jazz progression"]
+        },
+        "jazz-251-altered": {
+            "name": "II-V-I Altered",
+            "description": "II-V-I with altered dominants.",
+            "progression": [
+                ("ii", "min11"),
+                ("V", "dom7#5"),
+                ("I", "maj9"),
+                ("IV", "dom7#11")
+            ],
+            "examples": ["Modern jazz standards"]
+        },
+        "coltrane-changes": {
+            "name": "Coltrane Changes",
+            "description": "Giant Steps style key centers.",
+            "progression": [
+                ("I", "maj7"),
+                ("bIII", "dom7"),
+                ("bVI", "maj7"),
+                ("II", "dom7"),
+                ("IV", "maj7"),
+                ("V", "dom7")
+            ],
+            "examples": ["Giant Steps, Countdown"]
+        },
+        "jazz-minor-modal": {
+            "name": "Minor Modal Jazz",
+            "description": "Dorian/Aeolian modal minor.",
+            "progression": [
+                ("i", "min9"),
+                ("iv", "min11"),
+                ("bVII", "dom9"),
+                ("bIII", "maj9")
+            ],
+            "examples": ["So What, Impressions"]
+        },
+        "jazz-ballad": {
+            "name": "Jazz Ballad",
+            "description": "Lush ballad with rich harmonies.",
+            "progression": [
+                ("I", "maj9"),
+                ("vi", "min9"),
+                ("ii", "min11"),
+                ("V", "dom13"),
+                ("iii", "min9"),
+                ("vi", "min7"),
+                ("ii", "min9"),
+                ("V", "dom7b9")
+            ],
+            "examples": ["Body and Soul, Misty"]
+        },
+        "jazz-quartal": {
+            "name": "Quartal Harmony",
+            "description": "Chords built in perfect fourths.",
+            "progression": [
+                ("I", "sus4"),
+                ("bVII", "sus4"),
+                ("IV", "sus4"),
+                ("V", "sus4")
+            ],
+            "examples": ["McCoy Tyner style voicings"]
+        },
+        "jazz-turnaround": {
+            "name": "Jazz Turnaround",
+            "description": "Classic I-VI-II-V.",
+            "progression": [
+                ("I", "maj9"),
+                ("vi", "min7"),
+                ("ii", "min9"),
+                ("V", "dom13")
+            ],
+            "examples": ["Rhythm Changes, Blue Bossa"]
+        },
+        "metheny-chromatic": {
+            "name": "Metheny Chromatic",
+            "description": "Chromatic voice leading, rich textures.",
+            "progression": [
+                ("I", "maj9"),
+                ("bII", "maj9"),
+                ("I", "maj13#11"),
+                ("bVII", "maj9"),
+                ("IV", "maj9"),
+                ("bIII", "maj7#11")
+            ],
+            "examples": ["Letter From Home"]
+        },
+        "jazz-blues-extended": {
+            "name": "Jazz Blues",
+            "description": "12-bar blues with jazz extensions.",
+            "progression": [
+                ("I", "dom9"),
+                ("IV", "dom9"),
+                ("I", "dom13"),
+                ("I", "dom7"),
+                ("IV", "dom9"),
+                ("IV", "dom13"),
+                ("I", "dom9"),
+                ("vi", "min9"),
+                ("ii", "min9"),
+                ("V", "dom7#9"),
+                ("I", "dom9"),
+                ("V", "dom13")
+            ],
+            "examples": ["Tenor Madness, Freddie Freeloader"]
+        },
+        "metheny-parallel": {
+            "name": "Parallel Harmony",
+            "description": "Parallel chord movement, Metheny style.",
+            "progression": [
+                ("I", "maj9"),
+                ("bVII", "maj9"),
+                ("bVI", "maj9"),
+                ("V", "maj9")
+            ],
+            "examples": ["Are You Going With Me?"]
+        },
+        "jazz-bossa": {
+            "name": "Bossa Nova Jazz",
+            "description": "Brazilian jazz with extensions.",
+            "progression": [
+                ("I", "maj9"),
+                ("II", "min7"),
+                ("ii", "min9"),
+                ("V", "dom7b9"),
+                ("I", "maj13")
+            ],
+            "examples": ["Girl from Ipanema, Desafinado"]
+        },
+        "jazz-tritone-sub": {
+            "name": "Tritone Substitution",
+            "description": "II-V with tritone subs.",
+            "progression": [
+                ("ii", "min11"),
+                ("bII", "dom13"),
+                ("I", "maj9#11"),
+                ("bVI", "dom9")
+            ],
+            "examples": ["Advanced jazz harmony"]
+        },
+    },
 }
 
 

@@ -49,6 +49,8 @@ CHORD_FORMULAS = {
     'dom9': [0, 4, 7, 10, 14],
     '7#9': [0, 4, 7, 10, 15],
     '7b9': [0, 4, 7, 10, 13],
+    'dom7b9': [0, 4, 7, 10, 13],  # Alias for 7b9
+    'dom7#9': [0, 4, 7, 10, 15],  # Alias for 7#9
 
     'maj11': [0, 4, 7, 11, 14, 17],
     'min11': [0, 3, 7, 10, 14, 17],
@@ -57,6 +59,15 @@ CHORD_FORMULAS = {
     'maj13': [0, 4, 7, 11, 14, 17, 21],
     'min13': [0, 3, 7, 10, 14, 17, 21],
     'dom13': [0, 4, 7, 10, 14, 17, 21],
+
+    # Altered dominants
+    'dom7#5': [0, 4, 8, 10],  # Augmented 7th
+    'dom7#11': [0, 4, 7, 10, 18],  # Lydian dominant
+
+    # Extended with alterations
+    'maj7#11': [0, 4, 7, 11, 18],  # Lydian major 7
+    'maj9#11': [0, 4, 7, 11, 14, 18],  # Lydian major 9
+    'maj13#11': [0, 4, 7, 11, 14, 18, 21],  # Lydian major 13
 
     # Add chords
     'add9': [0, 4, 7, 14],

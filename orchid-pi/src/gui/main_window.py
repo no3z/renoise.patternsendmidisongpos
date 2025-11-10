@@ -16,6 +16,7 @@ from kivy.core.window import Window
 
 import sys
 import os
+import json
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core import (ChordEngine, get_all_genres, get_progressions_for_genre, ProgressionPlayer)
@@ -24,17 +25,24 @@ from performance import StrumMode, ArpeggiatorMode, SlopMode, PatternMode, HarpM
 
 
 class OrchidPiApp(App):
+    CONFIG_FILE = os.path.expanduser('~/.orchid-pi-config.json')
 
     def build(self):
         Window.fullscreen = 'auto'
         Window.clearcolor = (0.1, 0.1, 0.1, 1)
         self.title = 'Orchid-Pi'
 
+        # Get screen dimensions
+        self.screen_width, self.screen_height = Window.size
+
         # Init
         self.midi_processor = MIDIProcessor()
         self.midi_router = MIDIRouter(self.midi_processor)
         self.chord_engine = ChordEngine(default_chord_type='maj7')
         self.progression_player = ProgressionPlayer(key_root=60, scale='major')
+
+        # Load saved MIDI output
+        self.load_config()
 
         self.modes = {
             'direct': None,
@@ -134,8 +142,8 @@ class OrchidPiApp(App):
         # === MAIN AREA (split 75% chords / 25% controls) ===
         main = BoxLayout(orientation='horizontal', spacing=5)
 
-        # LEFT: Chord buttons (75%)
-        left = BoxLayout(orientation='vertical', size_hint_x=0.75, spacing=5)
+        # LEFT: Chord buttons (70%)
+        left = BoxLayout(orientation='vertical', size_hint_x=0.70, spacing=5)
 
         self.prog_title = Label(
             text='',
@@ -148,11 +156,22 @@ class OrchidPiApp(App):
         left.add_widget(self.prog_title)
 
         scroll = ScrollView()
+
+        # Calculate grid dimensions based on screen size
+        # Left panel is 70% of screen width minus spacing/padding
+        left_panel_width = self.screen_width * 0.70
+        spacing = 12
+        padding = 20
+        cols = 4
+        available_width = left_panel_width - (2 * padding) - ((cols - 1) * spacing)
+        self.button_width = int(available_width / cols)
+        self.button_height = int(self.button_width * 0.5)  # 2:1 ratio
+
         self.chord_grid = GridLayout(
-            cols=4,
-            spacing=12,
+            cols=cols,
+            spacing=spacing,
             size_hint_y=None,
-            padding=10
+            padding=padding
         )
         self.chord_grid.bind(minimum_height=self.chord_grid.setter('height'))
         scroll.add_widget(self.chord_grid)
@@ -160,8 +179,8 @@ class OrchidPiApp(App):
 
         main.add_widget(left)
 
-        # RIGHT: Controls (25%)
-        right = BoxLayout(orientation='vertical', size_hint_x=0.25, spacing=8, padding=5)
+        # RIGHT: Controls (30%)
+        right = BoxLayout(orientation='vertical', size_hint_x=0.30, spacing=8, padding=5)
 
         right.add_widget(Label(
             text='Performance',
@@ -205,15 +224,15 @@ class OrchidPiApp(App):
             font_size='15sp'
         ))
 
-        midi_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40, spacing=3)
-        self.midi_spinner = Spinner(text='Loading...', values=[], size_hint_x=0.7, font_size='12sp')
+        self.midi_spinner = Spinner(
+            text='Loading...',
+            values=[],
+            size_hint_y=None,
+            height=45,
+            font_size='13sp'
+        )
         self.midi_spinner.bind(text=self.on_midi_changed)
-        midi_box.add_widget(self.midi_spinner)
-
-        refresh = Button(text='↻', size_hint_x=0.3, font_size='20sp')
-        refresh.bind(on_press=self.refresh_midi)
-        midi_box.add_widget(refresh)
-        right.add_widget(midi_box)
+        right.add_widget(self.midi_spinner)
 
         self.status = Label(
             text='Ready',
@@ -238,23 +257,46 @@ class OrchidPiApp(App):
 
         return root
 
+    def load_config(self):
+        """Load saved configuration"""
+        self.config = {'midi_output': None}
+        try:
+            if os.path.exists(self.CONFIG_FILE):
+                with open(self.CONFIG_FILE, 'r') as f:
+                    self.config = json.load(f)
+        except:
+            pass
+
+    def save_config(self):
+        """Save configuration"""
+        try:
+            with open(self.CONFIG_FILE, 'w') as f:
+                json.dump(self.config, f)
+        except:
+            pass
+
     def setup_midi(self):
         outputs = self.midi_processor.get_available_output_ports()
+        saved_output = self.config.get('midi_output')
+
         if outputs:
             self.midi_spinner.values = outputs + ["Virtual"]
-            self.midi_spinner.text = outputs[0]
-            self.midi_processor.open_output_port(0)
-            self.status.text = f'OK: {outputs[0][:15]}'
+
+            # Try to use saved output
+            if saved_output and saved_output in outputs:
+                self.midi_spinner.text = saved_output
+                idx = outputs.index(saved_output)
+                self.midi_processor.open_output_port(idx)
+                self.status.text = f'OK: {saved_output[:15]}'
+            else:
+                self.midi_spinner.text = outputs[0]
+                self.midi_processor.open_output_port(0)
+                self.status.text = f'OK: {outputs[0][:15]}'
         else:
             self.midi_processor.create_virtual_output("Orchid-Pi")
             self.midi_spinner.values = ["Virtual"]
             self.midi_spinner.text = "Virtual"
             self.status.text = 'Virtual'
-
-    def refresh_midi(self, *args):
-        outputs = self.midi_processor.get_available_output_ports()
-        self.midi_spinner.values = outputs + ["Virtual"] if outputs else ["Virtual"]
-        self.status.text = f'{len(outputs)} port(s)'
 
     def on_midi_changed(self, spinner, text):
         if not text or text == 'Loading...':
@@ -269,13 +311,18 @@ class OrchidPiApp(App):
         if text == "Virtual":
             self.midi_processor.create_virtual_output("Orchid-Pi")
             self.status.text = 'Virtual'
+            self.config['midi_output'] = "Virtual"
         else:
             outputs = self.midi_processor.get_available_output_ports()
             for i, port in enumerate(outputs):
                 if port == text:
                     self.midi_processor.open_output_port(i)
                     self.status.text = f'OK: {text[:15]}'
+                    self.config['midi_output'] = text
                     break
+
+        # Save config
+        self.save_config()
 
     def load_default(self):
         self.on_genre_changed(None, self.genre_spinner.text)
@@ -312,12 +359,15 @@ class OrchidPiApp(App):
         self.chord_buttons = []
         self.prog_title.text = name
 
+        # Calculate font size based on button width
+        font_size = max(14, min(28, int(self.button_width / 8)))
+
         for i, (notes, chord_name) in enumerate(chords):
             btn = Button(
                 text=chord_name,
                 size_hint=(None, None),
-                size=(200, 90),
-                font_size='24sp',
+                size=(self.button_width, self.button_height),
+                font_size=f'{font_size}sp',
                 bold=True,
                 color=(1, 1, 1, 1),
                 background_color=(0.2, 0.4, 0.7, 1)
