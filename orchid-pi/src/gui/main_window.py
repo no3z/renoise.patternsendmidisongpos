@@ -195,27 +195,46 @@ class OrchidPiApp(App):
         left_panel.add_widget(self.current_chord_label)
 
         # Tabbed Panel for 3 views
-        tab_panel = TabbedPanel(do_default_tab=False, tab_width=180)
+        tab_panel = TabbedPanel(
+            do_default_tab=False,
+            tab_width=200,
+            tab_height=50,
+            tab_pos='top_left'
+        )
         tab_panel.background_color = (0.1, 0.1, 0.1, 1)
-        tab_panel.border = [0, 0, 0, 0]
 
         # Tab 1: Progressions (grid of chord buttons)
-        progressions_tab = TabbedPanelItem(text='Progressions')
+        progressions_tab = TabbedPanelItem(
+            text='Progressions',
+            font_size='18sp',
+            bold=True
+        )
         self.progression_view = ProgressionView(on_chord_clicked=self.on_chord_clicked)
         progressions_tab.add_widget(self.progression_view)
         tab_panel.add_widget(progressions_tab)
 
         # Tab 2: Fretboard visualization
-        fretboard_tab = TabbedPanelItem(text='Fretboard')
+        fretboard_tab = TabbedPanelItem(
+            text='Fretboard',
+            font_size='18sp',
+            bold=True
+        )
         self.fretboard_widget = FretboardWidget()
         fretboard_tab.add_widget(self.fretboard_widget)
         tab_panel.add_widget(fretboard_tab)
 
         # Tab 3: Piano visualization
-        piano_tab = TabbedPanelItem(text='Piano')
+        piano_tab = TabbedPanelItem(
+            text='Piano',
+            font_size='18sp',
+            bold=True
+        )
         self.piano_widget = PianoWidget(start_note=48, num_octaves=3)
         piano_tab.add_widget(self.piano_widget)
         tab_panel.add_widget(piano_tab)
+
+        # Set default tab to Progressions
+        tab_panel.default_tab = progressions_tab
 
         left_panel.add_widget(tab_panel)
         root.add_widget(left_panel)
