@@ -59,13 +59,12 @@ class ProgressionView(BoxLayout):
 
         self.on_chord_clicked = on_chord_clicked
 
-        # Title
+        # Title (smaller, less prominent)
         self.title_label = Label(
-            text='Select a Progression',
-            font_size='24sp',
-            bold=True,
+            text='Click any chord to play',
+            font_size='16sp',
             size_hint_y=None,
-            height=40
+            height=30
         )
         self.add_widget(self.title_label)
 
@@ -145,96 +144,85 @@ class OrchidPiApp(App):
         root = BoxLayout(orientation='horizontal', padding=5, spacing=5)
 
         # LEFT PANEL - Tabbed interface (70%)
-        left_panel = BoxLayout(orientation='vertical', size_hint_x=0.7, spacing=10)
+        left_panel = BoxLayout(orientation='vertical', size_hint_x=0.7, spacing=5)
 
-        # Key and Progression selector at top
-        controls_box = BoxLayout(orientation='vertical', size_hint_y=None, height=130, spacing=5)
+        # Key and Progression selector at top (fixed height to ensure visibility)
+        controls_box = BoxLayout(orientation='vertical', size_hint=(1, None), height=135, spacing=5, padding=[5, 10, 5, 5])
 
         # Key selector
-        key_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50, spacing=10)
-        key_box.add_widget(Label(text='Key:', size_hint_x=0.15))
+        key_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=60, spacing=10)
+        key_box.add_widget(Label(text='Key:', size_hint_x=0.15, font_size='16sp', bold=True))
 
         notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.25)
+        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.25, font_size='16sp')
         self.note_spinner.bind(text=lambda s, t: self.on_key_changed())
         key_box.add_widget(self.note_spinner)
 
-        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.15)
+        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.15, font_size='16sp')
         self.octave_spinner.bind(text=lambda s, t: self.on_key_changed())
         key_box.add_widget(self.octave_spinner)
 
-        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.25)
+        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.25, font_size='16sp')
         self.scale_spinner.bind(text=lambda s, t: self.on_key_changed())
         key_box.add_widget(self.scale_spinner)
         controls_box.add_widget(key_box)
 
         # Progression selector (genre + progression in one row)
-        prog_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50, spacing=10)
+        prog_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=60, spacing=10)
 
         genres = get_all_genres()
-        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.4)
+        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.4, font_size='16sp')
         self.genre_spinner.bind(text=self._on_genre_changed)
         prog_box.add_widget(self.genre_spinner)
 
-        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.6)
+        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.6, font_size='16sp')
         self.progression_spinner.bind(text=self._on_progression_changed)
         prog_box.add_widget(self.progression_spinner)
         controls_box.add_widget(prog_box)
 
         left_panel.add_widget(controls_box)
 
-        # Current chord display
+        # Current chord display (fixed height, always visible)
         self.current_chord_label = Label(
-            text='---',
-            font_size='48sp',
+            text='- - -',
+            font_size='42sp',
             bold=True,
-            size_hint_y=None,
-            height=70,
+            size_hint=(1, None),
+            height=60,
             color=(0.3, 1.0, 0.3, 1)
         )
         left_panel.add_widget(self.current_chord_label)
 
-        # Tabbed Panel for 3 views
+        # Tabbed Panel for 3 views (takes remaining space)
         tab_panel = TabbedPanel(
             do_default_tab=False,
             tab_width=200,
             tab_height=50,
-            tab_pos='top_left'
+            tab_pos='top_mid',
+            size_hint=(1, 1)
         )
-        tab_panel.background_color = (0.1, 0.1, 0.1, 1)
+        tab_panel.background_color = (0.15, 0.15, 0.15, 1)
 
         # Tab 1: Progressions (grid of chord buttons)
-        progressions_tab = TabbedPanelItem(
-            text='Progressions',
-            font_size='18sp',
-            bold=True
-        )
+        progressions_tab = TabbedPanelItem(text='♪ Progressions')
         self.progression_view = ProgressionView(on_chord_clicked=self.on_chord_clicked)
         progressions_tab.add_widget(self.progression_view)
         tab_panel.add_widget(progressions_tab)
 
         # Tab 2: Fretboard visualization
-        fretboard_tab = TabbedPanelItem(
-            text='Fretboard',
-            font_size='18sp',
-            bold=True
-        )
+        fretboard_tab = TabbedPanelItem(text='♫ Fretboard')
         self.fretboard_widget = FretboardWidget()
         fretboard_tab.add_widget(self.fretboard_widget)
         tab_panel.add_widget(fretboard_tab)
 
         # Tab 3: Piano visualization
-        piano_tab = TabbedPanelItem(
-            text='Piano',
-            font_size='18sp',
-            bold=True
-        )
+        piano_tab = TabbedPanelItem(text='♬ Piano')
         self.piano_widget = PianoWidget(start_note=48, num_octaves=3)
         piano_tab.add_widget(self.piano_widget)
         tab_panel.add_widget(piano_tab)
 
-        # Set default tab to Progressions
-        tab_panel.default_tab = progressions_tab
+        # Set default tab to Progressions and make it the first tab
+        tab_panel.default_tab_content = self.progression_view
 
         left_panel.add_widget(tab_panel)
         root.add_widget(left_panel)
