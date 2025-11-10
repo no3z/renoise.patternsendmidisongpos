@@ -30,18 +30,27 @@ class FretboardWidget(RelativeLayout):
         self.canvas.clear()
         self.clear_widgets()
 
+        if self.width == 0 or self.height == 0:
+            return
+
         with self.canvas:
             # Background
-            Color(0.1, 0.1, 0.1, 1)
+            Color(0.15, 0.1, 0.05, 1)  # Dark wood color
             Rectangle(pos=self.pos, size=self.size)
 
             # Calculate dimensions
             num_strings = 6
             num_frets = 5
-            margin = dp(40)
+            margin_left = dp(60)
+            margin_right = dp(20)
+            margin_top = dp(50)
+            margin_bottom = dp(40)
 
-            fretboard_width = self.width - 2 * margin
-            fretboard_height = self.height - 2 * margin
+            fretboard_width = self.width - margin_left - margin_right
+            fretboard_height = self.height - margin_top - margin_bottom
+
+            if fretboard_width <= 0 or fretboard_height <= 0:
+                return
 
             string_spacing = fretboard_height / (num_strings - 1)
             fret_spacing = fretboard_width / num_frets
@@ -49,64 +58,86 @@ class FretboardWidget(RelativeLayout):
             # Draw strings (horizontal lines)
             Color(0.7, 0.7, 0.7, 1)
             for i in range(num_strings):
-                y = self.y + margin + i * string_spacing
-                Line(points=[self.x + margin, y, self.x + self.width - margin, y], width=1.5)
+                y = self.y + margin_bottom + i * string_spacing
+                x1 = self.x + margin_left
+                x2 = self.x + self.width - margin_right
+                Line(points=[x1, y, x2, y], width=1.5)
 
             # Draw frets (vertical lines)
             Color(0.6, 0.6, 0.6, 1)
             for i in range(num_frets + 1):
-                x = self.x + margin + i * fret_spacing
-                Line(points=[x, self.y + margin, x, self.y + self.height - margin], width=2)
+                x = self.x + margin_left + i * fret_spacing
+                y1 = self.y + margin_bottom
+                y2 = self.y + self.height - margin_top
+                Line(points=[x, y1, x, y2], width=2)
 
             # Draw nut (thicker line at fret 0)
             Color(0.9, 0.9, 0.9, 1)
-            x = self.x + margin
-            Line(points=[x, self.y + margin, x, self.y + self.height - margin], width=4)
+            x = self.x + margin_left
+            y1 = self.y + margin_bottom
+            y2 = self.y + self.height - margin_top
+            Line(points=[x, y1, x, y2], width=4)
 
-        # Add string labels (on the left)
+        # Add string labels (absolute positioning)
         string_names = ['E', 'B', 'G', 'D', 'A', 'E']
         for i, name in enumerate(string_names):
-            y = self.y + margin + i * string_spacing
+            y = self.y + margin_bottom + i * string_spacing - dp(10)
             label = Label(
                 text=name,
-                pos=(self.x + dp(5), y - dp(10)),
-                size=(dp(30), dp(20)),
+                pos=(self.x + dp(10), y),
+                size=(dp(40), dp(20)),
+                size_hint=(None, None),
                 font_size='14sp',
-                color=(0.7, 0.7, 0.7, 1)
+                color=(1, 1, 1, 1)
             )
             self.add_widget(label)
 
-        # Add fret numbers (at the top)
+        # Add fret numbers (absolute positioning)
         for i in range(1, num_frets + 1):
-            x = self.x + margin + (i - 0.5) * fret_spacing
+            x = self.x + margin_left + (i - 0.5) * fret_spacing - dp(10)
+            y = self.y + self.height - margin_top + dp(10)
             label = Label(
                 text=str(i),
-                pos=(x - dp(10), self.y + self.height - dp(30)),
+                pos=(x, y),
                 size=(dp(20), dp(20)),
+                size_hint=(None, None),
                 font_size='14sp',
-                color=(0.6, 0.6, 0.6, 1)
+                color=(1, 1, 1, 1)
+            )
+            self.add_widget(label)
+
+        # Draw chord name at top
+        if self.chord_name:
+            label = Label(
+                text=self.chord_name,
+                pos=(self.x + self.width // 2 - dp(75), self.y + self.height - dp(35)),
+                size=(dp(150), dp(30)),
+                size_hint=(None, None),
+                font_size='24sp',
+                bold=True,
+                color=(0.3, 1.0, 0.3, 1)
             )
             self.add_widget(label)
 
         # Redraw current chord if any
         if self.current_notes:
             self._draw_chord_positions(
-                self.current_notes, margin, string_spacing, fret_spacing, num_frets
+                self.current_notes, margin_left, margin_bottom, string_spacing, fret_spacing, num_frets
             )
 
-    def _draw_chord_positions(self, notes, margin, string_spacing, fret_spacing, num_frets):
+    def _draw_chord_positions(self, notes, margin_left, margin_bottom, string_spacing, fret_spacing, num_frets):
         """Draw finger positions for the current chord"""
         # Find optimal fingering positions for the given notes
         positions = self._find_chord_positions(notes, num_frets)
 
         with self.canvas:
             # Draw finger positions
-            Color(0.2, 0.8, 0.3, 1)  # Green for active notes
+            Color(0.3, 1.0, 0.3, 1)  # Green for active notes
             for string_idx, fret in positions:
                 if fret >= 0:  # Valid position
-                    x = self.x + margin + (fret + 0.5) * fret_spacing
-                    y = self.y + margin + string_idx * string_spacing
-                    Ellipse(pos=(x - dp(10), y - dp(10)), size=(dp(20), dp(20)))
+                    x = self.x + margin_left + (fret + 0.5) * fret_spacing
+                    y = self.y + margin_bottom + string_idx * string_spacing
+                    Ellipse(pos=(x - dp(12), y - dp(12)), size=(dp(24), dp(24)))
 
     def _find_chord_positions(self, notes, num_frets):
         """Find finger positions on fretboard for given MIDI notes"""
@@ -140,18 +171,6 @@ class FretboardWidget(RelativeLayout):
         self.current_notes = notes
         self.chord_name = chord_name
         self._draw_fretboard()
-
-        # Add chord name label
-        if chord_name:
-            label = Label(
-                text=chord_name,
-                pos=(self.x + self.width // 2 - dp(50), self.y + dp(10)),
-                size=(dp(100), dp(30)),
-                font_size='20sp',
-                bold=True,
-                color=(0.2, 0.8, 0.3, 1)
-            )
-            self.add_widget(label)
 
 
 class PianoWidget(RelativeLayout):

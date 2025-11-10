@@ -38,8 +38,9 @@ class ChordButton(Button):
         self.font_size = '22sp'
         self.bold = True
         self.size_hint = (None, None)
-        self.size = (180, 80)  # Fixed size for grid layout
+        self.size = (180, 80)
         self.background_color = (0.2, 0.4, 0.7, 1)
+        self.color = (1, 1, 1, 1)
 
     def set_active(self, active):
         """Highlight when active"""
@@ -60,18 +61,19 @@ class ProgressionView(BoxLayout):
 
         self.on_chord_clicked = on_chord_clicked
 
-        # Title (smaller, less prominent)
+        # Title
         self.title_label = Label(
             text='Click any chord to play',
             font_size='16sp',
             size_hint_y=None,
-            height=30
+            height=30,
+            color=(1, 1, 1, 1)
         )
         self.add_widget(self.title_label)
 
         # Scroll view for chords in grid layout
         scroll = ScrollView(size_hint=(1, 1))
-        self.chord_grid = GridLayout(cols=3, spacing=10, size_hint_y=None)  # 3 columns for grid
+        self.chord_grid = GridLayout(cols=3, spacing=10, size_hint_y=None)
         self.chord_grid.bind(minimum_height=self.chord_grid.setter('height'))
         scroll.add_widget(self.chord_grid)
         self.add_widget(scroll)
@@ -113,7 +115,7 @@ class ProgressionView(BoxLayout):
 
 
 class OrchidPiApp(App):
-    """Main Orchid-Pi Application - Redesigned"""
+    """Main Orchid-Pi Application"""
 
     def build(self):
         # Set fullscreen
@@ -141,224 +143,213 @@ class OrchidPiApp(App):
         }
         self.current_mode = 'direct'
 
-        # Build UI - COMPLETELY REDESIGNED FOR VISIBILITY
-        root = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        # ROOT LAYOUT - Vertical
+        root = BoxLayout(orientation='vertical', spacing=0)
 
-        # TOP BAR - Always visible, fixed height
-        top_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=70, spacing=10)
-
+        # === TOP CONTROLS BAR ===
+        top_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=70, spacing=5, padding=5)
+        top_bar.canvas.before.clear()
         with top_bar.canvas.before:
-            Color(0.2, 0.3, 0.4, 1)  # Blue-gray background
-            top_bar.bg = Rectangle(pos=top_bar.pos, size=top_bar.size)
-        top_bar.bind(pos=lambda obj, val: setattr(top_bar.bg, 'pos', val))
-        top_bar.bind(size=lambda obj, val: setattr(top_bar.bg, 'size', val))
+            Color(0.2, 0.3, 0.4, 1)
+            self.top_bar_bg = Rectangle(pos=top_bar.pos, size=top_bar.size)
+        top_bar.bind(pos=self._update_top_bar_bg, size=self._update_top_bar_bg)
 
-        # Key controls
-        top_bar.add_widget(Label(text='KEY:', font_size='20sp', bold=True, size_hint_x=0.1, color=(1, 1, 1, 1)))
+        # Key selector
+        top_bar.add_widget(Label(text='KEY:', font_size='18sp', bold=True, size_hint_x=0.08, color=(1, 1, 1, 1)))
+
         notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.15, font_size='20sp',
-                                     color=(1, 1, 1, 1), background_color=(0.3, 0.4, 0.5, 1))
+        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.12, font_size='18sp')
         self.note_spinner.bind(text=lambda s, t: self.on_key_changed())
         top_bar.add_widget(self.note_spinner)
 
-        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.1, font_size='20sp',
-                                       color=(1, 1, 1, 1), background_color=(0.3, 0.4, 0.5, 1))
+        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.08, font_size='18sp')
         self.octave_spinner.bind(text=lambda s, t: self.on_key_changed())
         top_bar.add_widget(self.octave_spinner)
 
-        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.15, font_size='20sp',
-                                      color=(1, 1, 1, 1), background_color=(0.3, 0.4, 0.5, 1))
+        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.12, font_size='18sp')
         self.scale_spinner.bind(text=lambda s, t: self.on_key_changed())
         top_bar.add_widget(self.scale_spinner)
 
+        # Spacer
+        top_bar.add_widget(Label(text='|', size_hint_x=0.02, color=(0.5, 0.5, 0.5, 1)))
+
         # Genre and progression
         genres = get_all_genres()
-        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.2, font_size='20sp',
-                                      color=(1, 1, 1, 1), background_color=(0.3, 0.4, 0.5, 1))
+        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.24, font_size='18sp')
         self.genre_spinner.bind(text=self._on_genre_changed)
         top_bar.add_widget(self.genre_spinner)
 
-        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.3, font_size='20sp',
-                                            color=(1, 1, 1, 1), background_color=(0.3, 0.4, 0.5, 1))
+        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.34, font_size='18sp')
         self.progression_spinner.bind(text=self._on_progression_changed)
         top_bar.add_widget(self.progression_spinner)
 
         root.add_widget(top_bar)
 
-        # CURRENT CHORD DISPLAY - Fixed height
-        chord_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=60, padding=5)
-
+        # === CHORD DISPLAY BAR ===
+        chord_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=50, padding=5)
+        chord_bar.canvas.before.clear()
         with chord_bar.canvas.before:
-            Color(0.1, 0.1, 0.15, 1)
-            chord_bar.bg = Rectangle(pos=chord_bar.pos, size=chord_bar.size)
-        chord_bar.bind(pos=lambda obj, val: setattr(chord_bar.bg, 'pos', val))
-        chord_bar.bind(size=lambda obj, val: setattr(chord_bar.bg, 'size', val))
+            Color(0.12, 0.12, 0.18, 1)
+            self.chord_bar_bg = Rectangle(pos=chord_bar.pos, size=chord_bar.size)
+        chord_bar.bind(pos=self._update_chord_bar_bg, size=self._update_chord_bar_bg)
 
         self.current_chord_label = Label(
-            text='SELECT A PROGRESSION',
-            font_size='36sp',
+            text='- Select a progression -',
+            font_size='32sp',
             bold=True,
             color=(0.4, 1.0, 0.4, 1)
         )
         chord_bar.add_widget(self.current_chord_label)
         root.add_widget(chord_bar)
 
-        # MAIN CONTENT AREA - Split left (progressions/tabs) and right (controls)
-        main_area = BoxLayout(orientation='horizontal', size_hint=(1, 1), spacing=10)
+        # === MAIN CONTENT AREA ===
+        content_area = BoxLayout(orientation='horizontal', size_hint=(1, 1), spacing=5, padding=5)
 
-        # LEFT: Tabbed Panel (70%)
+        # LEFT SIDE - Tabs (70%)
         tab_panel = TabbedPanel(
             do_default_tab=False,
-            tab_width=180,
-            tab_height=60,
+            tab_width=150,
+            tab_height=50,
             size_hint_x=0.7
         )
 
-        # Tab 1: Progressions
-        progressions_tab = TabbedPanelItem(text='CHORDS', font_size='18sp')
+        # Progressions tab
+        prog_tab = TabbedPanelItem(text='CHORDS')
         self.progression_view = ProgressionView(on_chord_clicked=self.on_chord_clicked)
-        progressions_tab.add_widget(self.progression_view)
-        tab_panel.add_widget(progressions_tab)
+        prog_tab.add_widget(self.progression_view)
+        tab_panel.add_widget(prog_tab)
 
-        # Tab 2: Fretboard
-        fretboard_tab = TabbedPanelItem(text='FRETBOARD', font_size='18sp')
+        # Fretboard tab
+        fret_tab = TabbedPanelItem(text='FRETBOARD')
         self.fretboard_widget = FretboardWidget()
-        fretboard_tab.add_widget(self.fretboard_widget)
-        tab_panel.add_widget(fretboard_tab)
+        fret_tab.add_widget(self.fretboard_widget)
+        tab_panel.add_widget(fret_tab)
 
-        # Tab 3: Piano
-        piano_tab = TabbedPanelItem(text='PIANO', font_size='18sp')
+        # Piano tab
+        piano_tab = TabbedPanelItem(text='PIANO')
         self.piano_widget = PianoWidget(start_note=48, num_octaves=3)
         piano_tab.add_widget(self.piano_widget)
         tab_panel.add_widget(piano_tab)
 
-        main_area.add_widget(tab_panel)
+        content_area.add_widget(tab_panel)
 
-        # RIGHT PANEL (30%)
-        right_panel = BoxLayout(orientation='vertical', size_hint_x=0.3, spacing=10)
-
+        # RIGHT SIDE - Controls (30%)
+        right_panel = BoxLayout(orientation='vertical', size_hint_x=0.3, spacing=8, padding=5)
+        right_panel.canvas.before.clear()
         with right_panel.canvas.before:
             Color(0.18, 0.18, 0.22, 1)
-            right_panel.bg = Rectangle(pos=right_panel.pos, size=right_panel.size)
-        right_panel.bind(pos=lambda obj, val: setattr(right_panel.bg, 'pos', val))
-        right_panel.bind(size=lambda obj, val: setattr(right_panel.bg, 'size', val))
+            self.right_panel_bg = Rectangle(pos=right_panel.pos, size=right_panel.size)
+        right_panel.bind(pos=self._update_right_panel_bg, size=self._update_right_panel_bg)
 
-        # Performance mode selector
-        perf_box = BoxLayout(orientation='vertical', size_hint_y=None, height=250, spacing=5)
-        perf_box.add_widget(Label(text='Performance Mode', size_hint_y=0.2, bold=True, color=(1, 1, 1, 1), font_size='16sp'))
+        # Performance modes
+        perf_label = Label(text='Performance Mode', size_hint_y=None, height=30, bold=True, color=(1, 1, 1, 1), font_size='16sp')
+        right_panel.add_widget(perf_label)
 
-        modes = ['Direct', 'Strum', 'Arp', 'Slop', 'Pattern', 'Harp']
         self.mode_buttons = {}
-
-        for mode in modes:
-            btn = ToggleButton(text=mode, group='perf_mode', size_hint_y=None, height=30)
+        for mode in ['Direct', 'Strum', 'Arp', 'Slop', 'Pattern', 'Harp']:
+            btn = ToggleButton(text=mode, group='perf_mode', size_hint_y=None, height=35)
             btn.bind(on_press=lambda x, m=mode.lower(): self.on_mode_changed(m))
-            perf_box.add_widget(btn)
+            right_panel.add_widget(btn)
             self.mode_buttons[mode.lower()] = btn
 
         self.mode_buttons['direct'].state = 'down'
-        right_panel.add_widget(perf_box)
 
         # Bass toggle
-        bass_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
+        bass_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
         bass_box.add_widget(Label(text='Bass:', size_hint_x=0.4, color=(1, 1, 1, 1), font_size='16sp', bold=True))
         self.bass_toggle = ToggleButton(text='ON', state='down', size_hint_x=0.6)
         self.bass_toggle.bind(on_press=self.toggle_bass)
         bass_box.add_widget(self.bass_toggle)
         right_panel.add_widget(bass_box)
 
-        # MIDI Output selector
-        midi_box = BoxLayout(orientation='vertical', size_hint_y=None, height=140, spacing=5, padding=5)
+        # MIDI Output
+        midi_label = Label(text='MIDI Output', size_hint_y=None, height=25, bold=True, color=(1, 1, 1, 1), font_size='14sp')
+        right_panel.add_widget(midi_label)
 
-        # Title with refresh button
-        title_box = BoxLayout(orientation='horizontal', size_hint_y=0.25)
-        title_box.add_widget(Label(text='MIDI Output:', size_hint_x=0.7, bold=True, font_size='16sp', color=(1, 1, 1, 1)))
-        refresh_btn = Button(text='↻', size_hint_x=0.3, font_size='20sp')
-        refresh_btn.bind(on_press=lambda x: self._refresh_midi_ports())
-        title_box.add_widget(refresh_btn)
-        midi_box.add_widget(title_box)
-
-        # Spinner
+        midi_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=35)
         self.midi_out_spinner = Spinner(
             text='Loading...',
             values=[],
-            size_hint_y=0.75,
-            font_size='14sp',
-            color=(1, 1, 1, 1),
-            background_color=(0.3, 0.4, 0.5, 1)
+            size_hint_x=0.75,
+            font_size='13sp'
         )
         self.midi_out_spinner.bind(text=self._on_midi_out_changed)
         midi_box.add_widget(self.midi_out_spinner)
+
+        refresh_btn = Button(text='↻', size_hint_x=0.25, font_size='18sp')
+        refresh_btn.bind(on_press=lambda x: self._refresh_midi_ports())
+        midi_box.add_widget(refresh_btn)
         right_panel.add_widget(midi_box)
 
         # Status
-        self.status_label = Label(text='Ready', size_hint_y=None, height=80, font_size='12sp', color=(0.7, 0.7, 0.7, 1))
+        self.status_label = Label(text='Ready', size_hint_y=None, height=60, font_size='11sp', color=(0.7, 0.7, 0.7, 1))
         right_panel.add_widget(self.status_label)
 
-        # Add right panel to main area
-        main_area.add_widget(right_panel)
+        # Spacer
+        right_panel.add_widget(Label(text='', size_hint_y=1))
 
-        # Add main area to root
-        root.add_widget(main_area)
+        content_area.add_widget(right_panel)
+        root.add_widget(content_area)
 
-        # Setup MIDI after UI is built
+        # Setup MIDI
         self._setup_midi()
 
-        # Load default progression
+        # Load default
         Clock.schedule_once(lambda dt: self._load_default(), 0.5)
 
         return root
+
+    def _update_top_bar_bg(self, instance, value):
+        self.top_bar_bg.pos = instance.pos
+        self.top_bar_bg.size = instance.size
+
+    def _update_chord_bar_bg(self, instance, value):
+        self.chord_bar_bg.pos = instance.pos
+        self.chord_bar_bg.size = instance.size
+
+    def _update_right_panel_bg(self, instance, value):
+        self.right_panel_bg.pos = instance.pos
+        self.right_panel_bg.size = instance.size
 
     def _setup_midi(self):
         """Setup MIDI I/O"""
         outputs = self.midi_processor.get_available_output_ports()
 
-        # Populate MIDI output selector
         if outputs:
-            # Include virtual port as option
             all_ports = outputs + ["Orchid-Pi Out (Virtual)"]
             self.midi_out_spinner.values = all_ports
             self.midi_out_spinner.text = outputs[0]
             self.midi_processor.open_output_port(0)
-            self.status_label.text = f'Connected to: {self.midi_processor.output_port}'
+            self.status_label.text = f'Connected: {self.midi_processor.output_port}'
         else:
-            # Create virtual port
             self.midi_processor.create_virtual_output("Orchid-Pi Out")
             self.midi_out_spinner.values = ["Orchid-Pi Out (Virtual)"]
             self.midi_out_spinner.text = "Orchid-Pi Out (Virtual)"
-            self.status_label.text = 'Virtual MIDI port created'
+            self.status_label.text = 'Virtual MIDI port'
 
     def _refresh_midi_ports(self):
-        """Refresh the list of available MIDI ports"""
-        # Save current selection
-        current_selection = self.midi_out_spinner.text
-
-        # Get fresh list of ports
+        """Refresh MIDI ports"""
+        current = self.midi_out_spinner.text
         outputs = self.midi_processor.get_available_output_ports()
 
         if outputs:
-            # Add virtual port option
             all_ports = outputs + ["Orchid-Pi Out (Virtual)"]
             self.midi_out_spinner.values = all_ports
-
-            # Restore selection if still available
-            if current_selection in all_ports:
-                self.midi_out_spinner.text = current_selection
+            if current in all_ports:
+                self.midi_out_spinner.text = current
             else:
                 self.midi_out_spinner.text = outputs[0]
-
-            self.status_label.text = f'Found {len(outputs)} MIDI port(s)'
+            self.status_label.text = f'Found {len(outputs)} port(s)'
         else:
             self.midi_out_spinner.values = ["Orchid-Pi Out (Virtual)"]
             self.midi_out_spinner.text = "Orchid-Pi Out (Virtual)"
-            self.status_label.text = 'No MIDI ports found'
+            self.status_label.text = 'No MIDI ports'
 
     def _on_midi_out_changed(self, spinner, port_name):
-        """Handle MIDI output port change"""
+        """Handle MIDI output change"""
         if not port_name or port_name == 'Loading...':
             return
 
-        # Close current port
         if self.midi_processor.midi_out:
             try:
                 self.midi_router.stop_all()
@@ -366,25 +357,22 @@ class OrchidPiApp(App):
             except:
                 pass
 
-        # Open new port
         outputs = self.midi_processor.get_available_output_ports()
 
         if port_name == "Orchid-Pi Out (Virtual)":
-            # Create virtual port
             self.midi_processor.create_virtual_output("Orchid-Pi Out")
-            self.status_label.text = 'Virtual MIDI port created'
+            self.status_label.text = 'Virtual port'
         else:
-            # Find and open the selected port
             for i, port in enumerate(outputs):
                 if port == port_name:
                     self.midi_processor.open_output_port(i)
-                    self.status_label.text = f'Connected to: {port_name}'
+                    self.status_label.text = f'Connected: {port_name}'
                     break
 
     def _load_default(self):
         """Load default progression"""
         self._on_genre_changed(self.genre_spinner, self.genre_spinner.text)
-        
+
     def _on_genre_changed(self, spinner, genre):
         """Handle genre change"""
         progs = get_progressions_for_genre(genre)
@@ -397,10 +385,10 @@ class OrchidPiApp(App):
         """Handle progression change"""
         if prog_name == 'Select...':
             return
-            
+
         genre = self.genre_spinner.text
         progs = get_progressions_for_genre(genre)
-        
+
         prog_key = None
         for key, data in progs.items():
             if data['name'] == prog_name:
@@ -451,10 +439,10 @@ class OrchidPiApp(App):
         note = self.note_spinner.text
         octave = int(self.octave_spinner.text)
         scale = self.scale_spinner.text
-        
+
         notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
         midi_note = (octave + 1) * 12 + notes.index(note)
-        
+
         self.progression_player.set_key(midi_note, scale)
         chords = self.progression_player.get_full_progression_chords()
         prog_name = self.progression_player.current_progression_name
