@@ -140,30 +140,41 @@ class FretboardWidget(RelativeLayout):
                     Ellipse(pos=(x - dp(12), y - dp(12)), size=(dp(24), dp(24)))
 
     def _find_chord_positions(self, notes, num_frets):
-        """Find finger positions on fretboard for given MIDI notes"""
+        """Find finger positions on fretboard for given MIDI notes - IMPROVED"""
+        if not notes:
+            return []
+
         positions = []
+        notes_sorted = sorted(notes)  # Sort from low to high
 
-        # Convert notes to pitch classes (0-11)
-        note_pitch_classes = set(note % 12 for note in notes)
+        print(f"\n=== Finding fretboard positions for notes: {notes_sorted} ===")
 
-        # For each string, find the closest matching note
+        # For each string (low E to high E)
         for string_idx, open_note in enumerate(self.TUNING):
             best_fret = -1
-            best_distance = 999
+            best_match_note = None
 
-            for fret in range(num_frets + 1):
-                fret_note = (open_note + fret) % 12
-                if fret_note in note_pitch_classes:
-                    # Check if this note is in the actual chord (not just pitch class)
-                    actual_midi = open_note + fret
-                    if any(abs(actual_midi - note) <= 12 for note in notes):
-                        if abs(fret - 3) < best_distance:  # Prefer middle frets
+            # Try each fret on this string
+            for fret in range(min(num_frets + 1, 13)):  # Up to fret 12
+                fret_midi = open_note + fret
+
+                # Check if this exact note OR its octave equivalent is in the chord
+                for note in notes_sorted:
+                    # Same pitch class (within 2 octaves)
+                    if (fret_midi % 12) == (note % 12) and abs(fret_midi - note) <= 24:
+                        # Prefer lower frets and notes closer to chord voicing
+                        if best_fret == -1 or fret < best_fret:
                             best_fret = fret
-                            best_distance = abs(fret - 3)
+                            best_match_note = note
+                            break
 
             if best_fret >= 0:
                 positions.append((string_idx, best_fret))
+                print(f"  String {string_idx} ({self.NOTE_NAMES[open_note % 12]}): Fret {best_fret} = MIDI {open_note + best_fret} (matches {best_match_note})")
+            else:
+                print(f"  String {string_idx} ({self.NOTE_NAMES[open_note % 12]}): No match")
 
+        print(f"Found {len(positions)} positions")
         return positions
 
     def update_chord(self, notes, chord_name=""):
