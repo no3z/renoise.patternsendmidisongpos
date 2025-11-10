@@ -1,5 +1,5 @@
 """
-Orchid-Pi - ULTRA SIMPLIFIED - Debug Version
+Orchid-Pi - FINAL SIMPLE VERSION - NO CANVAS ISSUES
 """
 
 from kivy.app import App
@@ -23,6 +23,25 @@ from core import (ChordEngine, get_all_genres, get_progressions_for_genre, Progr
 from midi import MIDIProcessor, MIDIRouter
 from performance import StrumMode, ArpeggiatorMode, SlopMode, PatternMode, HarpMode
 from gui.chord_visualizers import FretboardWidget, PianoWidget
+
+
+class ColoredBox(BoxLayout):
+    """Simple colored background box - NO CANVAS"""
+    def __init__(self, bg_color=(0.2, 0.2, 0.2, 1), **kwargs):
+        super().__init__(**kwargs)
+        self.background_color = bg_color
+
+        # Use a dummy button as background
+        from kivy.graphics import Color, Rectangle
+        with self.canvas.before:
+            Color(*bg_color)
+            self.rect = Rectangle(pos=self.pos, size=self.size)
+
+        self.bind(pos=self._update_rect, size=self._update_rect)
+
+    def _update_rect(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
 
 
 class OrchidPiApp(App):
@@ -49,18 +68,24 @@ class OrchidPiApp(App):
         }
         self.current_mode = 'direct'
 
-        # === ROOT (Vertical, explicit size control) ===
-        root = BoxLayout(orientation='vertical', spacing=3, padding=3)
+        # === ROOT ===
+        root = BoxLayout(orientation='vertical', spacing=2, padding=2)
 
-        # === TOP BAR (MUST BE VISIBLE, 65px fixed) ===
-        top = BoxLayout(orientation='horizontal', size_hint=(1, None), height=65, spacing=3)
+        # === TOP BAR with colored background ===
+        top_container = ColoredBox(
+            bg_color=(0.25, 0.35, 0.45, 1),
+            orientation='horizontal',
+            size_hint=(1, None),
+            height=70,
+            spacing=5,
+            padding=5
+        )
 
-        # Make it visually distinct
-        top.add_widget(Label(
+        top_container.add_widget(Label(
             text='KEY:',
             size_hint_x=0.08,
             color=(1, 1, 1, 1),
-            font_size='16sp',
+            font_size='18sp',
             bold=True
         ))
 
@@ -69,103 +94,101 @@ class OrchidPiApp(App):
             text='C',
             values=notes_list,
             size_hint_x=0.1,
-            font_size='16sp'
+            font_size='18sp'
         )
         self.note_spinner.bind(text=self.on_key_changed)
-        top.add_widget(self.note_spinner)
+        top_container.add_widget(self.note_spinner)
 
         self.octave_spinner = Spinner(
             text='4',
             values=[str(i) for i in range(9)],
             size_hint_x=0.08,
-            font_size='16sp'
+            font_size='18sp'
         )
         self.octave_spinner.bind(text=self.on_key_changed)
-        top.add_widget(self.octave_spinner)
+        top_container.add_widget(self.octave_spinner)
 
         self.scale_spinner = Spinner(
             text='major',
             values=['major','minor'],
             size_hint_x=0.12,
-            font_size='16sp'
+            font_size='18sp'
         )
         self.scale_spinner.bind(text=self.on_key_changed)
-        top.add_widget(self.scale_spinner)
+        top_container.add_widget(self.scale_spinner)
 
-        # Divider
-        top.add_widget(Label(text='|', size_hint_x=0.02, color=(0.5, 0.5, 0.5, 1)))
+        top_container.add_widget(Label(text='|', size_hint_x=0.02, color=(0.8, 0.8, 0.8, 1), font_size='20sp'))
 
         genres = get_all_genres()
         self.genre_spinner = Spinner(
             text=genres[0] if genres else 'pop',
             values=genres,
             size_hint_x=0.23,
-            font_size='16sp'
+            font_size='18sp'
         )
         self.genre_spinner.bind(text=self.on_genre_changed)
-        top.add_widget(self.genre_spinner)
+        top_container.add_widget(self.genre_spinner)
 
         self.prog_spinner = Spinner(
             text='Select...',
             values=[],
             size_hint_x=0.37,
-            font_size='16sp'
+            font_size='18sp'
         )
         self.prog_spinner.bind(text=self.on_prog_changed)
-        top.add_widget(self.prog_spinner)
+        top_container.add_widget(self.prog_spinner)
 
-        root.add_widget(top)
+        root.add_widget(top_container)
 
-        # === CHORD DISPLAY (55px fixed) ===
+        # === CHORD DISPLAY with colored background ===
+        chord_container = ColoredBox(
+            bg_color=(0.15, 0.15, 0.2, 1),
+            orientation='horizontal',
+            size_hint=(1, None),
+            height=60,
+            padding=5
+        )
+
         self.chord_label = Label(
             text='- SELECT PROGRESSION -',
-            size_hint=(1, None),
-            height=55,
-            font_size='30sp',
+            font_size='32sp',
             bold=True,
             color=(0.4, 1, 0.4, 1)
         )
-        root.add_widget(self.chord_label)
+        chord_container.add_widget(self.chord_label)
+        root.add_widget(chord_container)
 
-        # === DIVIDER LINE ===
-        divider = Widget(size_hint=(1, None), height=2)
-        root.add_widget(divider)
+        # === MAIN CONTENT ===
+        main = BoxLayout(orientation='horizontal', size_hint=(1, 1), spacing=5, padding=5)
 
-        # === MAIN CONTENT (Takes remaining space) ===
-        main = BoxLayout(
-            orientation='horizontal',
-            size_hint=(1, 1),  # Takes all remaining vertical space
-            spacing=3
-        )
-
-        # LEFT: Tabbed area (70%)
+        # LEFT: Tabs (70%)
         tabs = TabbedPanel(
             do_default_tab=False,
             size_hint_x=0.7,
-            tab_width=140,
-            tab_height=45
+            tab_width=150,
+            tab_height=50
         )
 
         # === CHORDS TAB ===
-        tab_chords = TabbedPanelItem(text='CHORDS', font_size='16sp')
-        chords_container = BoxLayout(orientation='vertical', padding=5, spacing=5)
+        tab_chords = TabbedPanelItem(text='CHORDS', font_size='18sp')
+        chords_container = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
         self.prog_title = Label(
             text='Click a progression above',
             size_hint=(1, None),
-            height=25,
+            height=30,
             color=(1, 1, 1, 1),
-            font_size='14sp'
+            font_size='16sp',
+            bold=True
         )
         chords_container.add_widget(self.prog_title)
 
-        # Scrollable chord grid
         scroll = ScrollView(size_hint=(1, 1))
         self.chord_grid = GridLayout(
             cols=3,
-            spacing=8,
+            spacing=10,
             size_hint_y=None,
-            padding=5
+            padding=10
         )
         self.chord_grid.bind(minimum_height=self.chord_grid.setter('height'))
         scroll.add_widget(self.chord_grid)
@@ -175,15 +198,15 @@ class OrchidPiApp(App):
         tabs.add_widget(tab_chords)
 
         # === FRETBOARD TAB ===
-        tab_fret = TabbedPanelItem(text='FRETBOARD', font_size='16sp')
-        fret_container = BoxLayout(orientation='vertical', padding=5)
+        tab_fret = TabbedPanelItem(text='FRETBOARD', font_size='18sp')
+        fret_container = BoxLayout(orientation='vertical', padding=10, spacing=5)
 
         fret_info = Label(
-            text='Select a chord to see it on the fretboard',
+            text='Click a chord to see fretboard positions',
             size_hint=(1, None),
-            height=25,
+            height=30,
             color=(1, 1, 1, 1),
-            font_size='12sp'
+            font_size='14sp'
         )
         fret_container.add_widget(fret_info)
 
@@ -194,15 +217,15 @@ class OrchidPiApp(App):
         tabs.add_widget(tab_fret)
 
         # === PIANO TAB ===
-        tab_piano = TabbedPanelItem(text='PIANO', font_size='16sp')
-        piano_container = BoxLayout(orientation='vertical', padding=5)
+        tab_piano = TabbedPanelItem(text='PIANO', font_size='18sp')
+        piano_container = BoxLayout(orientation='vertical', padding=10, spacing=5)
 
         piano_info = Label(
-            text='Select a chord to see it on the piano',
+            text='Click a chord to see piano keys',
             size_hint=(1, None),
-            height=25,
+            height=30,
             color=(1, 1, 1, 1),
-            font_size='12sp'
+            font_size='14sp'
         )
         piano_container.add_widget(piano_info)
 
@@ -214,24 +237,23 @@ class OrchidPiApp(App):
 
         main.add_widget(tabs)
 
-        # === RIGHT PANEL (30%) ===
-        right = BoxLayout(
+        # === RIGHT PANEL with colored background ===
+        right_container = ColoredBox(
+            bg_color=(0.18, 0.18, 0.22, 1),
             orientation='vertical',
             size_hint_x=0.3,
-            spacing=3,
-            padding=3
+            spacing=5,
+            padding=8
         )
 
-        # Performance modes
-        perf_title = Label(
-            text='Performance',
+        right_container.add_widget(Label(
+            text='Performance Mode',
             size_hint=(1, None),
-            height=25,
+            height=28,
             color=(1, 1, 1, 1),
             bold=True,
-            font_size='14sp'
-        )
-        right.add_widget(perf_title)
+            font_size='15sp'
+        ))
 
         self.mode_btns = {}
         for m in ['Direct', 'Strum', 'Arp', 'Slop', 'Pattern', 'Harp']:
@@ -239,51 +261,50 @@ class OrchidPiApp(App):
                 text=m,
                 group='mode',
                 size_hint=(1, None),
-                height=28,
-                font_size='12sp'
+                height=32,
+                font_size='13sp'
             )
             btn.bind(on_press=lambda x, mode=m.lower(): self.on_mode_changed(mode))
-            right.add_widget(btn)
+            right_container.add_widget(btn)
             self.mode_btns[m.lower()] = btn
 
         self.mode_btns['direct'].state = 'down'
 
         # Bass toggle
-        bass_box = BoxLayout(orientation='horizontal', size_hint=(1, None), height=32)
+        bass_box = BoxLayout(orientation='horizontal', size_hint=(1, None), height=38, spacing=5)
         bass_box.add_widget(Label(
             text='Bass:',
             size_hint_x=0.4,
             color=(1, 1, 1, 1),
-            font_size='13sp',
+            font_size='14sp',
             bold=True
         ))
         self.bass_toggle = ToggleButton(
             text='ON',
             state='down',
             size_hint_x=0.6,
-            font_size='12sp'
+            font_size='13sp'
         )
         self.bass_toggle.bind(on_press=self.toggle_bass)
         bass_box.add_widget(self.bass_toggle)
-        right.add_widget(bass_box)
+        right_container.add_widget(bass_box)
 
         # MIDI output
-        midi_title = Label(
+        right_container.add_widget(Label(
             text='MIDI Output',
             size_hint=(1, None),
-            height=25,
+            height=28,
             color=(1, 1, 1, 1),
             bold=True,
-            font_size='13sp'
-        )
-        right.add_widget(midi_title)
+            font_size='14sp'
+        ))
 
-        midi_box = BoxLayout(orientation='horizontal', size_hint=(1, None), height=32)
+        midi_box = BoxLayout(orientation='horizontal', size_hint=(1, None), height=38, spacing=5)
         self.midi_spinner = Spinner(
             text='Loading...',
             values=[],
             size_hint_x=0.75,
-            font_size='11sp'
+            font_size='12sp'
         )
         self.midi_spinner.bind(text=self.on_midi_changed)
         midi_box.add_widget(self.midi_spinner)
@@ -291,40 +312,42 @@ class OrchidPiApp(App):
         refresh_btn = Button(
             text='↻',
             size_hint_x=0.25,
-            font_size='16sp'
+            font_size='18sp'
         )
         refresh_btn.bind(on_press=self.refresh_midi)
         midi_box.add_widget(refresh_btn)
-        right.add_widget(midi_box)
+        right_container.add_widget(midi_box)
 
         # Status
         self.status = Label(
             text='Ready',
             size_hint=(1, None),
-            height=35,
-            font_size='9sp',
+            height=40,
+            font_size='10sp',
             color=(0.7, 0.7, 0.7, 1)
         )
-        right.add_widget(self.status)
+        right_container.add_widget(self.status)
 
-        # Spacer to push everything up
-        right.add_widget(Widget(size_hint=(1, 1)))
+        # Spacer
+        right_container.add_widget(Widget(size_hint=(1, 1)))
 
-        main.add_widget(right)
+        main.add_widget(right_container)
         root.add_widget(main)
 
         # Setup
         self.chord_buttons = []
         self.setup_midi()
+
+        # Force initial layout refresh
+        Clock.schedule_once(lambda dt: self._force_refresh(), 0.1)
         Clock.schedule_once(lambda dt: self.load_default(), 0.5)
 
-        print("=== ORCHID-PI: UI BUILT ===")
-        print(f"Window size: {Window.size}")
-        print(f"Top bar height: 65px")
-        print(f"Chord label height: 55px")
-        print(f"Main area: takes remaining space")
-
         return root
+
+    def _force_refresh(self):
+        """Force a complete layout refresh to prevent black screen"""
+        Window.canvas.ask_update()
+        print("=== UI refresh triggered ===")
 
     def setup_midi(self):
         outputs = self.midi_processor.get_available_output_ports()
@@ -379,7 +402,6 @@ class OrchidPiApp(App):
         if name == 'Select...':
             return
 
-        print(f"\n=== Loading progression: {name} ===")
         genre = self.genre_spinner.text
         progs = get_progressions_for_genre(genre)
 
@@ -392,13 +414,11 @@ class OrchidPiApp(App):
         if key:
             self.progression_player.load_progression(genre, key)
             chords = self.progression_player.get_full_progression_chords()
-            print(f"Loaded {len(chords)} chords")
             self.load_chords(name, chords)
             self.progression_player.reset()
             self.play_chord()
 
     def load_chords(self, name, chords):
-        print(f"Creating {len(chords)} chord buttons...")
         self.chord_grid.clear_widgets()
         self.chord_buttons = []
         self.prog_title.text = name
@@ -407,8 +427,8 @@ class OrchidPiApp(App):
             btn = Button(
                 text=chord_name,
                 size_hint=(None, None),
-                size=(170, 75),
-                font_size='18sp',
+                size=(180, 80),
+                font_size='20sp',
                 bold=True,
                 color=(1, 1, 1, 1),
                 background_color=(0.2, 0.4, 0.7, 1)
@@ -417,10 +437,7 @@ class OrchidPiApp(App):
             self.chord_grid.add_widget(btn)
             self.chord_buttons.append(btn)
 
-        print(f"Created {len(self.chord_buttons)} buttons in grid")
-
     def chord_clicked(self, index):
-        print(f"Chord {index} clicked")
         self.progression_player.current_chord_index = index
 
         # Highlight selected
@@ -438,7 +455,6 @@ class OrchidPiApp(App):
             return
 
         notes, name = data
-        print(f"Playing: {name}, Notes: {notes}")
         self.chord_label.text = name
 
         # Update visualizers
