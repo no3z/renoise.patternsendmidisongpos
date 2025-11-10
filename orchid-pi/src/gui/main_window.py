@@ -154,27 +154,32 @@ class OrchidPiApp(App):
         top_bar.bind(size=lambda obj, val: setattr(top_bar.bg, 'size', val))
 
         # Key controls
-        top_bar.add_widget(Label(text='KEY:', font_size='20sp', bold=True, size_hint_x=0.1))
+        top_bar.add_widget(Label(text='KEY:', font_size='20sp', bold=True, size_hint_x=0.1, color=(1, 1, 1, 1)))
         notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.15, font_size='20sp')
+        self.note_spinner = Spinner(text='C', values=notes, size_hint_x=0.15, font_size='20sp',
+                                     color=(1, 1, 1, 1), background_color=(0.3, 0.4, 0.5, 1))
         self.note_spinner.bind(text=lambda s, t: self.on_key_changed())
         top_bar.add_widget(self.note_spinner)
 
-        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.1, font_size='20sp')
+        self.octave_spinner = Spinner(text='4', values=[str(i) for i in range(9)], size_hint_x=0.1, font_size='20sp',
+                                       color=(1, 1, 1, 1), background_color=(0.3, 0.4, 0.5, 1))
         self.octave_spinner.bind(text=lambda s, t: self.on_key_changed())
         top_bar.add_widget(self.octave_spinner)
 
-        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.15, font_size='20sp')
+        self.scale_spinner = Spinner(text='major', values=['major', 'minor'], size_hint_x=0.15, font_size='20sp',
+                                      color=(1, 1, 1, 1), background_color=(0.3, 0.4, 0.5, 1))
         self.scale_spinner.bind(text=lambda s, t: self.on_key_changed())
         top_bar.add_widget(self.scale_spinner)
 
         # Genre and progression
         genres = get_all_genres()
-        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.2, font_size='20sp')
+        self.genre_spinner = Spinner(text=genres[0] if genres else 'pop', values=genres, size_hint_x=0.2, font_size='20sp',
+                                      color=(1, 1, 1, 1), background_color=(0.3, 0.4, 0.5, 1))
         self.genre_spinner.bind(text=self._on_genre_changed)
         top_bar.add_widget(self.genre_spinner)
 
-        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.3, font_size='20sp')
+        self.progression_spinner = Spinner(text='Select...', values=[], size_hint_x=0.3, font_size='20sp',
+                                            color=(1, 1, 1, 1), background_color=(0.3, 0.4, 0.5, 1))
         self.progression_spinner.bind(text=self._on_progression_changed)
         top_bar.add_widget(self.progression_spinner)
 
@@ -240,7 +245,7 @@ class OrchidPiApp(App):
 
         # Performance mode selector
         perf_box = BoxLayout(orientation='vertical', size_hint_y=None, height=250, spacing=5)
-        perf_box.add_widget(Label(text='Performance Mode', size_hint_y=0.2, bold=True))
+        perf_box.add_widget(Label(text='Performance Mode', size_hint_y=0.2, bold=True, color=(1, 1, 1, 1), font_size='16sp'))
 
         modes = ['Direct', 'Strum', 'Arp', 'Slop', 'Pattern', 'Harp']
         self.mode_buttons = {}
@@ -256,7 +261,7 @@ class OrchidPiApp(App):
 
         # Bass toggle
         bass_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
-        bass_box.add_widget(Label(text='Bass:', size_hint_x=0.4))
+        bass_box.add_widget(Label(text='Bass:', size_hint_x=0.4, color=(1, 1, 1, 1), font_size='16sp', bold=True))
         self.bass_toggle = ToggleButton(text='ON', state='down', size_hint_x=0.6)
         self.bass_toggle.bind(on_press=self.toggle_bass)
         bass_box.add_widget(self.bass_toggle)
@@ -267,7 +272,7 @@ class OrchidPiApp(App):
 
         # Title with refresh button
         title_box = BoxLayout(orientation='horizontal', size_hint_y=0.25)
-        title_box.add_widget(Label(text='MIDI Output:', size_hint_x=0.7, bold=True, font_size='16sp'))
+        title_box.add_widget(Label(text='MIDI Output:', size_hint_x=0.7, bold=True, font_size='16sp', color=(1, 1, 1, 1)))
         refresh_btn = Button(text='↻', size_hint_x=0.3, font_size='20sp')
         refresh_btn.bind(on_press=lambda x: self._refresh_midi_ports())
         title_box.add_widget(refresh_btn)
@@ -278,14 +283,16 @@ class OrchidPiApp(App):
             text='Loading...',
             values=[],
             size_hint_y=0.75,
-            font_size='14sp'
+            font_size='14sp',
+            color=(1, 1, 1, 1),
+            background_color=(0.3, 0.4, 0.5, 1)
         )
         self.midi_out_spinner.bind(text=self._on_midi_out_changed)
         midi_box.add_widget(self.midi_out_spinner)
         right_panel.add_widget(midi_box)
 
         # Status
-        self.status_label = Label(text='Ready', size_hint_y=None, height=80, font_size='12sp')
+        self.status_label = Label(text='Ready', size_hint_y=None, height=80, font_size='12sp', color=(0.7, 0.7, 0.7, 1))
         right_panel.add_widget(self.status_label)
 
         # Add right panel to main area
